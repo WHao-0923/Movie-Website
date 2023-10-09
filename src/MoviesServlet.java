@@ -2,6 +2,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -9,9 +10,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
-// This annotation maps this Java Servlet Class to a URL
-@WebServlet("/stars")
-public class StarServlet extends HttpServlet {
+@WebServlet("/movies")
+public class MoviesServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -35,34 +35,45 @@ public class StarServlet extends HttpServlet {
             Connection connection = DriverManager.getConnection(loginUrl, loginUser, loginPasswd);
             // declare statement
             Statement statement = connection.createStatement();
-            // prepare query
-            String query = "SELECT * from stars limit 10";
+            // prepare query; Sorted by rating (TBD)
+            String query = "SELECT m.title, m.year, m.director, r.rating from movies m JOIN ratings r ON m.id = r.movieId " +
+                    "ORDER BY r.rating DESC, r.numVotes DESC " +
+                    "LIMIT 20";
             // execute query
             ResultSet resultSet = statement.executeQuery(query);
 
             out.println("<body>");
-            out.println("<h1>MovieDB Stars</h1>");
+            out.println("<h1>MovieDB Movies</h1>");
 
             out.println("<table border>");
 
             // Add table header row
             out.println("<tr>");
-            out.println("<td>id</td>");
-            out.println("<td>name</td>");
-            out.println("<td>birth year</td>");
+            out.println("<td>title</td>");
+            out.println("<td>year</td>");
+            out.println("<td>director</td>");
+            //out.println("<td>genres</td>");
+            //out.println("<td>stars</td>");
+            out.println("<td>rating</td>");
             out.println("</tr>");
 
             // Add a row for every star result
             while (resultSet.next()) {
                 // get a star from result set
-                String starID = resultSet.getString("id");
-                String starName = resultSet.getString("name");
-                String birthYear = resultSet.getString("birthyear");
+                String movieTitle = resultSet.getString("title");
+                String movieYear = resultSet.getString("year");
+                String movieDirector = resultSet.getString("director");
+                //String movieGenres = resultSet.getString("genres");
+                //String movieStars = resultSet.getString("stars");
+                String movieRating = resultSet.getString("rating");
 
                 out.println("<tr>");
-                out.println("<td>" + starID + "</td>");
-                out.println("<td>" + starName + "</td>");
-                out.println("<td>" + birthYear + "</td>");
+                out.println("<td>" + movieTitle + "</td>");
+                out.println("<td>" + movieYear + "</td>");
+                out.println("<td>" + movieDirector + "</td>");
+                //out.println("<td>" + movieGenres + "</td>");
+                //out.println("<td>" + movieStars + "</td>");
+                out.println("<td>" + movieRating + "</td>");
                 out.println("</tr>");
             }
 

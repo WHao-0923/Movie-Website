@@ -57,7 +57,7 @@ function handleResult(resultData) {
     // Concatenate the html tags with resultData jsonObject to create table rows
     for (let i = 0; i < Math.min(10, resultData.length); i++) {
         let rowHTML = "";
-        rowHTML += "<tr>";
+        rowHTML += "<tr onclick=\"window.location.href='/api/single-movie?movieId=" + resultData[i]["movie_id"] + "'\">";
         rowHTML += "<th>" + resultData[i]["movie_title"] + "</th>";
         rowHTML += "<th>" + resultData[i]["movie_year"] + "</th>";
         rowHTML += "<th>" + resultData[i]["movie_director"] + "</th>";

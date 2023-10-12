@@ -1,3 +1,5 @@
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -9,12 +11,9 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 
-@WebServlet("/movies")
+@WebServlet(name = "MoviesServlet", urlPatterns = "/api/movies")
 public class MoviesServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private DataSource dataSource;
@@ -30,27 +29,42 @@ public class MoviesServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         // Set response mime type
-        response.setContentType("text/html");
+        response.setContentType("application/json");
+
+//        // Retrieve parameter id from url request.
+//        String id = request.getParameter("id");
+//
+//        // The log message can be found in localhost log
+//        request.getServletContext().log("getting id: " + id);
 
         // Get the PrintWriter for writing response
         PrintWriter out = response.getWriter();
 
-        out.println("<html>");
-        out.println("<head><title>Fabflix</title></head>");
+//        out.println("<html>");
+//        out.println("<head><title>Fabflix</title></head>");
 
-        try {
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-            // create database connection
-            Connection connection = dataSource.getConnection();
-            // declare statement
-            Statement statement = connection.createStatement();
+        try (Connection conn = dataSource.getConnection()){
+//            Class.forName("com.mysql.jdbc.Driver").newInstance();
+//            // create database connection
+//
+//            // declare statement
+//            Statement statement = connection.createStatement();
+
+
             // prepare query; Sorted by rating (TBD)
 //            String query = "SELECT m.title, m.year, m.director, r.rating from movies m JOIN ratings r ON m.id = r.movieId " +
 //                    "ORDER BY r.rating DESC, r.numVotes DESC " +
 //                    "LIMIT 20";
-            String query = "SELECT m.title,m.year,m.director," +
-                    "SUBSTRING_INDEX(GROUP_CONCAT(g.name ORDER BY gim.movieId), ',', 3) AS genres," +
-                    "SUBSTRING_INDEX(GROUP_CONCAT(s.name ORDER BY sim.movieId), ',', 3) AS stars," +
+            String query = "SELECT m.id, m.title,m.year,m.director," +
+                    "SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT g.name ORDER BY gim.movieId), ',', 1) AS genre1," +
+                    "SUBSTRING_INDEX(SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT g.name ORDER BY gim.movieId), ',', 2), ',', -1) AS genre2," +
+                    "SUBSTRING_INDEX(SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT g.name ORDER BY gim.movieId), ',', 3), ',', -1) AS genre3," +
+                    "SUBSTRING_INDEX(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(s.name, ':', s.id) ORDER BY sim.movieId), ',', 1), ':', 1) AS star1_name," +
+                    "SUBSTRING_INDEX(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(s.name, ':', s.id) ORDER BY sim.movieId), ',', 1), ':', -1) AS star1_id," +
+                    "SUBSTRING_INDEX(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(s.name, ':', s.id) ORDER BY sim.movieId), ',', -3), ':', 1) AS star2_name," +
+                    "SUBSTRING_INDEX(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(s.name, ':', s.id) ORDER BY sim.movieId), ',', 2), ':', -1) AS star2_id," +
+                    "SUBSTRING_INDEX(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(s.name, ':', s.id) ORDER BY sim.movieId), ',', -2), ':', 1) AS star3_name," +
+                    "SUBSTRING_INDEX(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(s.name, ':', s.id) ORDER BY sim.movieId), ',', 3), ':', -1) AS star3_id," +
                     "r.rating " +
                     "FROM movies m " +
                     "LEFT JOIN ratings r ON m.id = r.movieId " +
@@ -59,73 +73,79 @@ public class MoviesServlet extends HttpServlet {
                     "LEFT JOIN stars_in_movies sim ON m.id = sim.movieId " +
                     "LEFT JOIN stars s ON sim.starId = s.id " +
                     "GROUP BY m.id " +
-                    "ORDER BY r.rating DESC LIMIT 20;";
-            // execute query
-            ResultSet resultSet = statement.executeQuery(query);
+                    "ORDER BY r.rating DESC;";
 
-            out.println("<body>");
-            out.println("<h1>MovieDB Movies</h1>");
+            // Declare our statement
+            PreparedStatement statement = conn.prepareStatement(query);
 
-            out.println("<table border>");
+            // Set the parameter represented by "?" in the query to the id we get from url,
+            // num 1 indicates the first "?" in the query
+            //statement.setString(1, id);
 
-            // Add table header row
-            out.println("<tr>");
-            out.println("<td>title</td>");
-            out.println("<td>year</td>");
-            out.println("<td>director</td>");
-            out.println("<td>genres</td>");
-            out.println("<td>stars</td>");
-            out.println("<td>rating</td>");
-            out.println("</tr>");
+            // Perform the query
+            ResultSet rs = statement.executeQuery();
+
+            JsonArray jsonArray = new JsonArray();
 
             // Add a row for every star result
-            while (resultSet.next()) {
-                // get a star from result set
-                String movieTitle = resultSet.getString("title");
-                String movieYear = resultSet.getString("year");
-                String movieDirector = resultSet.getString("director");
-                String movieGenres = resultSet.getString("genres");
-                String movieStars = resultSet.getString("stars");
-                String movieRating = resultSet.getString("rating");
+            while (rs.next()) {
 
-                out.println("<tr>");
-                out.println("<td>" + movieTitle + "</td>");
-                out.println("<td>" + movieYear + "</td>");
-                out.println("<td>" + movieDirector + "</td>");
-                out.println("<td>" + movieGenres + "</td>");
-                out.println("<td>" + movieStars + "</td>");
-                out.println("<td>" + movieRating + "</td>");
-                out.println("</tr>");
+                String movieId = rs.getString("id");
+                String movieTitle = rs.getString("title");
+                String movieYear = rs.getString("year");
+                String movieDirector = rs.getString("director");
+                String movieGenre1 = rs.getString("genre1");
+                String movieGenre2 = rs.getString("genre2");
+                String movieGenre3 = rs.getString("genre3");
+                String movieStar1Name = rs.getString("star1_name");
+                String movieStar1Id = rs.getString("star1_id");
+                String movieStar2Name = rs.getString("star2_name");
+                String movieStar2Id = rs.getString("star2_id");
+                String movieStar3Name = rs.getString("star3_name");
+                String movieStar3Id = rs.getString("star3_id");
+                String movieRating = rs.getString("rating");
+
+                // Create a JsonObject based on the data we retrieve from rs
+
+                JsonObject jsonObject = new JsonObject();
+                jsonObject.addProperty("movie_id", movieId);
+                jsonObject.addProperty("movie_title", movieTitle);
+                jsonObject.addProperty("movie_year", movieYear);
+                jsonObject.addProperty("movie_director", movieDirector);
+                jsonObject.addProperty("movie_genre1", movieGenre1);
+                jsonObject.addProperty("movie_genre2", movieGenre2);
+                jsonObject.addProperty("movie_genre3", movieGenre3);
+                jsonObject.addProperty("movie_star1_name", movieStar1Name);
+                jsonObject.addProperty("movie_star1_id", movieStar1Id);
+                jsonObject.addProperty("movie_star2_name", movieStar2Name);
+                jsonObject.addProperty("movie_star2_id", movieStar2Id);
+                jsonObject.addProperty("movie_star3_name", movieStar3Name);
+                jsonObject.addProperty("movie_star3_id", movieStar3Id);
+                jsonObject.addProperty("movie_rating", movieRating);
+
+                jsonArray.add(jsonObject);
             }
-
-            out.println("</table>");
-            out.println("</body>");
-
-            resultSet.close();
+            rs.close();
             statement.close();
-            connection.close();
+
+            // Write JSON string to output
+            out.write(jsonArray.toString());
+            // Set response status to 200 (OK)
+            response.setStatus(200);
 
         } catch (Exception e) {
-            /*
-             * After you deploy the WAR file through tomcat manager webpage,
-             *   there's no console to see the print messages.
-             * Tomcat append all the print messages to the file: tomcat_directory/logs/catalina.out
-             *
-             * To view the last n lines (for example, 100 lines) of messages you can use:
-             *   tail -100 catalina.out
-             * This can help you debug your program after deploying it on AWS.
-             */
-            request.getServletContext().log("Error: ", e);
+            // Write error message JSON object to output
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("errorMessage", e.getMessage());
+            out.write(jsonObject.toString());
 
-            out.println("<body>");
-            out.println("<p>");
-            out.println("Exception in doGet: " + e.getMessage());
-            out.println("</p>");
-            out.print("</body>");
+            // Log error to localhost log
+            request.getServletContext().log("Error:", e);
+            // Set response status to 500 (Internal Server Error)
+            response.setStatus(500);
+        } finally {
+            out.close();
         }
-
-        out.println("</html>");
-        out.close();
 
     }
 

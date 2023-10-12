@@ -1,0 +1,94 @@
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+h1, h3 {
+    text-align: center;
+    color: #333;
+}
+
+h1 {
+    margin-top: 50px;
+}
+
+h3 {
+    margin: 30px 0;
+}
+
+p {
+    font-size: 16px;
+    margin-left: 20px;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+ul li {
+    display: inline;
+    margin-right: 10px;
+}
+
+ul li a {
+    text-decoration: none;
+    color: #007BFF;
+    transition: color 0.3s;
+}
+
+ul li a:hover {
+    color: #0056b3;
+}
+
+#movie_rating {
+    font-weight: bold;
+    color: #e67e22;
+}
+
+ul#movie_stars li a {
+    padding: 5px 10px;
+    background-color: #e1e1e1;
+    border-radius: 15px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    display: inline-block;
+    transition: background-color 0.3s;
+}
+
+ul#movie_stars li a:hover {
+    background-color: #c8c8c8;
+}
+
+body {
+    margin-left: 10%;
+    margin-right: 10%;
+}
+
+ul#movie_stars {
+    margin-left: 20px;
+}
+
+body {
+    line-height: 1.5;  /* Increase line spacing */
+    font-size: 18px;   /* Increase font size */
+}
+
+p > span {
+    font-weight: bold;  /* Make category names bold */
+    color: #555;        /* Darken the color for category names */
+}
+
+ul#movie_stars {
+    padding-top: 10px;  /* Add space above the stars list for better alignment */
+}
+
+.genre-tag {
+    background-color: #e1e1e1;
+    border-radius: 15px;
+    padding: 5px 10px;
+    margin-right: 5px;
+    display: inline-block;
+}

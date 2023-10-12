@@ -1,0 +1,67 @@
+/* Adjusting the body margin and padding */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+body {
+    margin-left: 10%;
+    margin-right: 10%;
+    line-height: 1.5;  /* Increase line spacing */
+    font-size: 18px;   /* Increase font size */
+}
+
+/* Adjusting other headings font size and style */
+h3 {
+    font-size: 1.5em;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: #555;
+}
+
+/* If there are tables, adjust their styles */
+table {
+    width: 100%;
+    margin-top: 20px;
+}
+table th, table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+/* Styles for the fixed top navigation bar */
+.top-navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    background-color: #333;
+    color: white;
+    text-align: center;
+    line-height: 50px;
+    z-index: 1000;
+}
+
+.top-navbar a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+body {
+    padding-top: 60px; /* Adjusting body padding to ensure no content overlap with the navbar */
+}
+
+.top-navbar a {
+    display: inline-block;
+    width: 80px;
+    padding: 5px 15px;
+    margin-left: 20px;
+    background-color: #555;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}

@@ -4,13 +4,50 @@
 <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
-    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no"
-          name="viewport">
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <title>fabflix</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            margin: 0;
+            font-size: 2.5em;
+        }
+
+        #movies_table {
+            margin: 50px auto;
+            width: 90%;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        #movies_table thead {
+            background-color: #666;
+            color: white;
+        }
+
+        #movies_table th {
+            padding: 15px;
+            text-align: center;
+        }
+
+        #movies_table td {
+            padding: 15px;
+            text-align: center;
+            background-color: #fff;
+        }
+    </style>
 </head>
 
 <body>
@@ -42,8 +79,7 @@
 
 <!-- Load our own JS file -->
 <!-- The path is relative to index.html, since these two files are in the same directory -->
-<!-- Note the url does not contain a "/" in the beginning, which means the url is relative to current path
-     otherwise the url is relative to the root path-->
+<!-- Note the url does not contain a "/" in the beginning, which means the url is relative to current path otherwise the url is relative to the root path-->
 <script src="./js/index.js"></script>
 </body>
 

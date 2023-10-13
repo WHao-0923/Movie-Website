@@ -33,10 +33,14 @@ function handleMoviesResult(resultData) {
         rowHTML += "<th>" + resultData[i]["movie_year"] + "</th>";
         rowHTML += "<th>" + resultData[i]["movie_director"] + "</th>";
         rowHTML += "<th>" +
-            resultData[i]["movie_genre1"] + ", " +
-            resultData[i]["movie_genre2"] + ", " +
-            resultData[i]["movie_genre3"] +
-            "</th>";
+            resultData[i]["movie_genre1"];
+        if (resultData[i]["movie_genre2"] != resultData[i]["movie_genre1"]){
+            rowHTML += ", " + resultData[i]["movie_genre2"] ;
+            if (resultData[i]["movie_genre3"] != resultData[i]["movie_genre2"]){
+                rowHTML += ", " + resultData[i]["movie_genre3"] ;
+            }
+        }
+        rowHTML += "</th>";
         rowHTML +=
             "<th>" +
             // Add a link to index.html with id passed with GET url parameter

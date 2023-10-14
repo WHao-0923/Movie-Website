@@ -51,28 +51,61 @@ public class MoviesServlet extends HttpServlet {
 //            Statement statement = connection.createStatement();
 
 
-            // prepare query; Sorted by rating (TBD)
-//            String query = "SELECT m.title, m.year, m.director, r.rating from movies m JOIN ratings r ON m.id = r.movieId " +
-//                    "ORDER BY r.rating DESC, r.numVotes DESC " +
-//                    "LIMIT 20";
-            String query = "SELECT m.id, m.title,m.year,m.director," +
-                    "SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT g.name ORDER BY gim.movieId), ',', 1) AS genre1," +
-                    "SUBSTRING_INDEX(SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT g.name ORDER BY gim.movieId), ',', 2), ',', -1) AS genre2," +
-                    "SUBSTRING_INDEX(SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT g.name ORDER BY gim.movieId), ',', 3), ',', -1) AS genre3," +
-                    "SUBSTRING_INDEX(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(s.name, ':', s.id) ORDER BY sim.movieId), ',', 1), ':', 1) AS star1_name," +
-                    "SUBSTRING_INDEX(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(s.name, ':', s.id) ORDER BY sim.movieId), ',', 1), ':', -1) AS star1_id," +
-                    "SUBSTRING_INDEX(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(s.name, ':', s.id) ORDER BY sim.movieId), ',', -3), ':', 1) AS star2_name," +
-                    "SUBSTRING_INDEX(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(s.name, ':', s.id) ORDER BY sim.movieId), ',', 2), ':', -1) AS star2_id," +
-                    "SUBSTRING_INDEX(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(s.name, ':', s.id) ORDER BY sim.movieId), ',', -2), ':', 1) AS star3_name," +
-                    "SUBSTRING_INDEX(SUBSTRING_INDEX(GROUP_CONCAT(CONCAT(s.name, ':', s.id) ORDER BY sim.movieId), ',', 3), ':', -1) AS star3_id," +
-                    "r.rating " +
+            String query = "SELECT " +
+                    "m.id, m.ti" +
+                    "tle, m.year, m.director, r.rating," +
+                    "COALESCE((SELECT g.name FROM genres_in_movies gim " +
+                    "   JOIN genres g ON gim.genreId = g.id " +
+                    "   WHERE gim.movieId = m.id " +
+                    "   ORDER BY gim.movieId LIMIT 1),'') AS genre1," +
+                    "COALESCE((SELECT g.name FROM genres_in_movies gim " +
+                    "   JOIN genres g ON gim.genreId = g.id " +
+                    "   WHERE gim.movieId = m.id " +
+                    "   ORDER BY gim.movieId LIMIT 1 OFFSET 1)," +
+                    "   '') AS genre2," +
+                    "COALESCE((SELECT g.name FROM genres_in_movies gim " +
+                    "   JOIN genres g ON gim.genreId = g.id " +
+                    "   WHERE gim.movieId = m.id " +
+                    "   ORDER BY gim.movieId LIMIT 1 OFFSET 2)," +
+                    "   '') AS genre3," +
+                    "COALESCE(" +
+                    "   (SELECT s.name FROM stars_in_movies sim " +
+                    "   JOIN stars s ON sim.starId = s.id " +
+                    "   WHERE sim.movieId = m.id " +
+                    "   ORDER BY sim.movieId LIMIT 1)," +
+                    "   '') AS star1_name," +
+                    "COALESCE(" +
+                    "   (SELECT s.id FROM stars_in_movies sim " +
+                    "   JOIN stars s ON sim.starId = s.id " +
+                    "   WHERE sim.movieId = m.id " +
+                    "   ORDER BY sim.movieId LIMIT 1)," +
+                    "   '') AS star1_id," +
+                    "COALESCE(" +
+                    "   (SELECT s.name FROM stars_in_movies sim " +
+                    "   JOIN stars s ON sim.starId = s.id " +
+                    "   WHERE sim.movieId = m.id " +
+                    "   ORDER BY sim.movieId LIMIT 1 OFFSET 1)," +
+                    "   '') AS star2_name," +
+                    "COALESCE(" +
+                    "   (SELECT s.id FROM stars_in_movies sim " +
+                    "   JOIN stars s ON sim.starId = s.id " +
+                    "   WHERE sim.movieId = m.id " +
+                    "   ORDER BY sim.movieId LIMIT 1 OFFSET 1)," +
+                    "   '') AS star2_id," +
+                    "COALESCE(" +
+                    "   (SELECT s.name FROM stars_in_movies sim " +
+                    "   JOIN stars s ON sim.starId = s.id " +
+                    "   WHERE sim.movieId = m.id " +
+                    "   ORDER BY sim.movieId LIMIT 1 OFFSET 2)," +
+                    "   '') AS star3_name," +
+                    "COALESCE(" +
+                    "   (SELECT s.id FROM stars_in_movies sim " +
+                    "   JOIN stars s ON sim.starId = s.id " +
+                    "   WHERE sim.movieId = m.id " +
+                    "   ORDER BY sim.movieId LIMIT 1 OFFSET 2)," +
+                    "   '') AS star3_id " +
                     "FROM movies m " +
                     "LEFT JOIN ratings r ON m.id = r.movieId " +
-                    "LEFT JOIN genres_in_movies gim ON m.id = gim.movieId " +
-                    "LEFT JOIN genres g ON gim.genreId = g.id " +
-                    "LEFT JOIN stars_in_movies sim ON m.id = sim.movieId " +
-                    "LEFT JOIN stars s ON sim.starId = s.id " +
-                    "GROUP BY m.id " +
                     "ORDER BY r.rating DESC;";
 
             // Declare our statement

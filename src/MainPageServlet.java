@@ -6,6 +6,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -36,11 +37,17 @@ public class MainPageServlet extends HttpServlet {
         // Set response mime type
         response.setContentType("application/json");
 
-//        // Retrieve parameter id from url request.
-//        String id = request.getParameter("id");
-//
-//        // The log message can be found in localhost log
-//        request.getServletContext().log("getting id: " + id);
+        // Check if has logged in
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("user") == null){
+            //response.sendRedirect("api/login");
+            response.setCharacterEncoding("UTF-8");
+            Map<String, String> responseMap = new HashMap<>();
+            responseMap.put("redirect", "login.html");
+            response.getWriter().write(new Gson().toJson(responseMap));
+            response.setStatus(200);
+            return;
+        }
 
         // Get the PrintWriter for writing response
         PrintWriter out = response.getWriter();

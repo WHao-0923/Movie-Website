@@ -9,10 +9,21 @@
  */
 
 function handleMoviesResult(resultData) {
-    console.log("handleStarResult: populating movies table from resultData");
+    console.log("handleMoviesResult: populating movies table from resultData");
 
     // Clear previous results
-    searchResultsDiv.innerHTML = "";
+    allResultsDiv.insertAdjacentHTML('beforebegin', `
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Year</th>
+            <th>Director</th>
+            <th>Genres</th>
+            <th>Stars</th>
+            <th>Rating</th>
+        </tr>
+    </thead>
+    `);
     // Iterate through resultData and display the results
     resultData.forEach(item => {
         const resultRow = document.createElement("tr"); // Create a new table row
@@ -52,8 +63,7 @@ function handleMoviesResult(resultData) {
         resultRow.appendChild(ratingCell);
 
         // Append the filled row to the results table
-        searchResultsDiv.appendChild(resultRow);
-    //console.log(searchResultsDiv.innerHTML)
+        allResultsDiv.appendChild(resultRow);
     });
 
 // If results were added, display the table
@@ -65,6 +75,29 @@ function handleMoviesResult(resultData) {
 
 }
 
+function handleTitlesResult(resultData){
+    console.log("handleMoviesResult: populating movies table from resultData");
+
+    // Clear previous results
+    allResultsDiv.insertAdjacentHTML('beforebegin', `
+    <thead>
+        <tr>
+            <th>ALL MOVIE TITLES</th>
+        </tr>
+    </thead>
+    `);
+    // Iterate through resultData and display the results
+    resultData.forEach(item => {
+        const resultRow = document.createElement("tr");
+
+        const titleCell = document.createElement("td");
+        titleCell.innerText = item; // If title is not available, show empty string
+        resultRow.appendChild(titleCell);
+
+        allResultsDiv.appendChild(resultRow);
+    });
+}
+
 console.log("handleStarResult: populating movies table from resultData");
 
 const searchTitle = document.getElementById('searchTitle');
@@ -72,22 +105,20 @@ const searchYear = document.getElementById('searchYear');
 const searchDirector = document.getElementById('searchDirector');
 // const searchStar = document.getElementById('searchStar');
 const searchBtn = document.getElementById('submit');
-const searchResultsDiv = document.getElementById('searchResults');
+const allResultsDiv = document.getElementById('allResults');
 
-$.ajax({
-    url: `api/main_page?title=&year=&director=login=`,
-    type: 'GET',
-    dataType: 'json',
-    success: function(data) {
-        handleMoviesResult(data);
-    },
-    error: function(error) {
-        console.error("Error fetching search results:", error);
-    }
-});
+const titlesBtn = document.getElementById('browse_by_titles');
+const genresBtn = document.getElementById('browse_by_genres');
 
 searchBtn.addEventListener('click', function() {
     performSearch();
+});
+
+titlesBtn.addEventListener('click', function() {
+    performTitles();
+});
+genresBtn.addEventListener('click', function() {
+    performGenres();
 });
 
 function performSearch() {
@@ -95,14 +126,19 @@ function performSearch() {
     const year = searchYear.value.trim();
     const director = searchDirector.value.trim();
     // const star = searchStar.value.trim();
-    console.log(title,encodeURIComponent(title))
+    //console.log(title,encodeURIComponent(title))
     if (title || year || director) {
         $.ajax({
             url: `api/main_page?title=${encodeURIComponent(title)}&year=${encodeURIComponent(year)}&director=${encodeURIComponent(director)}`,
             type: 'GET',
             dataType: 'json',
             success: function(data) {
-                handleMoviesResult(data);
+                if (data.redirect) {
+                    window.location.href = data.redirect; // Redirect with JavaScript
+                } else {
+                    //console.log(data)
+                    handleMoviesResult(data);
+                }
             },
             error: function(error) {
                 console.error("Error fetching search results:", error);
@@ -113,4 +149,31 @@ function performSearch() {
     }
 }
 
+function performTitles(){
+    $.ajax({
+        url: `api/titles`,
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            handleTitlesResult(data)
+        },
+        error: function(error) {
+            console.error("Error fetching search results:", error);
+        }
+    });
+}
+
+function performGenres(){
+    $.ajax({
+        url: `api/genres`,
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+
+        },
+        error: function(error) {
+            console.error("Error fetching search results:", error);
+        }
+    });
+}
 

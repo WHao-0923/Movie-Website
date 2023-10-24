@@ -1,0 +1,16 @@
+/* Style for the table */
+.table-fixed {
+    width: 100%; /* Make the table full width */
+    max-height: 400px;
+    overflow-y: auto;
+    border-collapse: collapse;
+}
+
+/* Ensure table header and cells take up equal width */
+.table-fixed thead th,
+.table-fixed tbody td {
+    flex: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}

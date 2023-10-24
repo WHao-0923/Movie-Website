@@ -80,5 +80,10 @@ jQuery.ajax({
     dataType: "json",  // Setting return data type
     method: "GET",// Setting request method
     url: "api/single-star?star_id=" + starId, // Setting request url, which is mapped by StarsServlet in Stars.java
-    success: (resultData) => handleResult(resultData) // Setting callback function to handle data returned successfully by the SingleStarServlet
+    success: (resultData) => handleResult(resultData), // Setting callback function to handle data returned successfully by the SingleStarServlet
+    error: function(jqXHR, textStatus, errorThrown) {
+        if (jqXHR.status === 401) {  // Check if status code is 401 Unauthorized
+            window.location.href = 'login.html';  // Redirect to login.html
+        }
+    }
 });

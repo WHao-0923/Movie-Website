@@ -15,8 +15,8 @@ $(document).ready(function() {
             $('#movie_director').text(data["movie_director"]);
 
             // Handle genres
-            for (let i = 0; i < Math.min(10, data["genres"].length); i++)  {
-                $('#movie_genres').append(`<span class="genre-tag">${data["genres"][i]["genre"]}</span> `);
+            for (let i = 0; i < Math.min(3, data["genres"].length); i++)  {
+                $('#movie_genres').append(`<li><a href="index.html?genre_id=${data["genres"][i]["genre_id"]}" class="genre-tag">${data["genres"][i]["genre"]}</a> `);
             };
 
             // Handle stars
@@ -26,8 +26,10 @@ $(document).ready(function() {
 
             $('#movie_rating').text(data["movie_rating"]);
         },
-        error: function(error) {
-            console.log("Error:", error);
+        error: function(jqXHR, textStatus, errorThrown) {
+            if (jqXHR.status === 401) {  // Check if status code is 401 Unauthorized
+                window.location.href = 'login.html';  // Redirect to login.html
+            }
         }
     });
 });

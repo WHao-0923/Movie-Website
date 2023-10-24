@@ -8,69 +8,109 @@
  *      2. Populate the data to correct html elements.
  */
 
-
-/**
- * Handles the data returned by the API, read the jsonObject and populate data into html elements
- * @param resultData jsonObject
- */
 function handleMoviesResult(resultData) {
     console.log("handleStarResult: populating movies table from resultData");
 
-    // Populate the star table
-    // Find the empty table body by id "movies_table_body"
-    let moviesTableBodyElement = jQuery("#movies_table_body");
+    // Clear previous results
+    searchResultsDiv.innerHTML = "";
+    // Iterate through resultData and display the results
+    resultData.forEach(item => {
+        const resultRow = document.createElement("tr"); // Create a new table row
 
-    // Iterate through resultData, no more than 10 entries
-    for (let i = 0; i < Math.min(20, resultData.length); i++) {
+        // Create and populate the title cell
+        const titleCell = document.createElement("td");
+        titleCell.innerText = item.title || ""; // If title is not available, show empty string
+        resultRow.appendChild(titleCell);
 
-        // Concatenate the html tags with resultData jsonObject
-        let rowHTML = "";
-        rowHTML += "<tr>";
-        rowHTML += "<th>" +
-            '<a href="single-movie.html?movie_id=' + resultData[i]['movie_id'] + '">' +
-            resultData[i]["movie_title"] +
-            "</th>";
-        rowHTML += "<th>" + resultData[i]["movie_year"] + "</th>";
-        rowHTML += "<th>" + resultData[i]["movie_director"] + "</th>";
-        rowHTML += "<th>" +
-            resultData[i]["movie_genre1"];
-        if (resultData[i]["movie_genre2"] != resultData[i]["movie_genre1"]){
-            rowHTML += ", " + resultData[i]["movie_genre2"] ;
-            if (resultData[i]["movie_genre3"] != resultData[i]["movie_genre2"]){
-                rowHTML += ", " + resultData[i]["movie_genre3"] ;
+        // Create and populate the year cell
+        const yearCell = document.createElement("td");
+        yearCell.innerText = item.year || ""; // If year is not available, show empty string
+        resultRow.appendChild(yearCell);
+
+        // Create and populate the director cell
+        const directorCell = document.createElement("td");
+        directorCell.innerText = item.director || ""; // If director is not available, show empty string
+        resultRow.appendChild(directorCell);
+
+        // Create and populate the genres cell
+        const genresCell = document.createElement("td");
+        genresCell.innerText = (item.genre1_name + " ") || "";
+        genresCell.innerText += (item.genre2_name + " ") || "";
+        genresCell.innerText += item.genre3_name || ""; // If genre is not available, show empty string
+        resultRow.appendChild(genresCell);
+
+        // Create and populate the stars cell
+        const starsCell = document.createElement("td");
+        starsCell.innerText = (item.star1_name + ", ") || "";
+        starsCell.innerText += (item.star2_name + ", ") || "";
+        starsCell.innerText += item.star3_name || ""; // If genre is not available, show empty string
+        resultRow.appendChild(starsCell);
+
+        // Create and populate the rating cell
+        const ratingCell = document.createElement("td");
+        ratingCell.innerText = item.rating || ""; // If rating is not available, show empty string
+        resultRow.appendChild(ratingCell);
+
+        // Append the filled row to the results table
+        searchResultsDiv.appendChild(resultRow);
+    //console.log(searchResultsDiv.innerHTML)
+    });
+
+// If results were added, display the table
+    if (resultData.length > 0) {
+        document.getElementById("resultsTable").style.display = "block";
+    } else {
+        document.getElementById("resultsTable").style.display = "none";
+    }
+
+}
+
+console.log("handleStarResult: populating movies table from resultData");
+
+const searchTitle = document.getElementById('searchTitle');
+const searchYear = document.getElementById('searchYear');
+const searchDirector = document.getElementById('searchDirector');
+// const searchStar = document.getElementById('searchStar');
+const searchBtn = document.getElementById('submit');
+const searchResultsDiv = document.getElementById('searchResults');
+
+$.ajax({
+    url: `api/main_page?title=&year=&director=login=`,
+    type: 'GET',
+    dataType: 'json',
+    success: function(data) {
+        handleMoviesResult(data);
+    },
+    error: function(error) {
+        console.error("Error fetching search results:", error);
+    }
+});
+
+searchBtn.addEventListener('click', function() {
+    performSearch();
+});
+
+function performSearch() {
+    const title = searchTitle.value.trim();
+    const year = searchYear.value.trim();
+    const director = searchDirector.value.trim();
+    // const star = searchStar.value.trim();
+    console.log(title,encodeURIComponent(title))
+    if (title || year || director) {
+        $.ajax({
+            url: `api/main_page?title=${encodeURIComponent(title)}&year=${encodeURIComponent(year)}&director=${encodeURIComponent(director)}`,
+            type: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                handleMoviesResult(data);
+            },
+            error: function(error) {
+                console.error("Error fetching search results:", error);
             }
-        }
-        rowHTML += "</th>";
-        rowHTML +=
-            "<th>" +
-            // Add a link to index.html with id passed with GET url parameter
-            '<a href="single-star.html?star_id=' + resultData[i]['movie_star1_id'] + '">'
-            + resultData[i]["movie_star1_name"] +     // display movie_title for the link text
-            '</a>' + ", " +
-            '<a href="single-star.html?star_id=' + resultData[i]['movie_star2_id'] + '">'
-            + resultData[i]["movie_star2_name"] +     // display movie_title for the link text
-            '</a>' + ", " +
-            '<a href="single-star.html?star_id=' + resultData[i]['movie_star3_id'] + '">'
-            + resultData[i]["movie_star3_name"] +     // display movie_title for the link text
-            '</a>' +
-            "</th>";
-        rowHTML += "<th>" + resultData[i]["movie_rating"] + "</th>";
-        rowHTML += "</tr>";
-
-        // Append the row created to the table body, which will refresh the page
-        moviesTableBodyElement.append(rowHTML);
+        });
+    } else {
+        alert("Please enter a search term in at least one of the fields.");
     }
 }
 
 
-/**
- * Once this .js is loaded, following scripts will be executed by the browser
- */
-
-// Makes the HTTP GET request and registers on success callback function handleStarResult
-jQuery.ajax({
-    dataType: "json", // Setting return data type
-    method: "GET", // Setting request method
-    url: "api/movies", // Setting request url, which is mapped by StarsServlet in Stars.java
-    success: (resultData) => handleMoviesResult(resultData) // Setting callback function to handle data returned successfully by the StarsServlet
-});

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart</title>
+    <link rel="stylesheet" href="./css/cart.css">
+</head>
+<body>
+<h1>Shopping Cart</h1>
+<table id="cart-table">
+    <thead>
+    <tr>
+        <th>Movie Title</th>
+        <th>Quantity</th>
+        <th>Price</th>
+        <th>Total</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- Cart items will be inserted here -->
+    </tbody>
+</table>
+<div class="total-price" id="total-price">Total Price: $0.00</div>
+<button class="proceed-button" onclick="proceedToPayment()">Proceed to Payment</button>
+<script src="./js/cart.js"></script>
+</body>
+</html>

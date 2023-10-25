@@ -1,0 +1,33 @@
+body {
+    font-family: Arial, sans-serif;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+.quantity-actions {
+    display: flex;
+    gap: 5px;
+}
+.quantity-input {
+    width: 40px;
+    text-align: right;
+}
+button {
+    cursor: pointer;
+}
+.total-price {
+    text-align: right;
+    padding-top: 20px;
+    font-size: 1.2em;
+}
+.proceed-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 1em;
+}

@@ -12,7 +12,11 @@ function handleMoviesResult(resultData) {
     console.log("handleMoviesResult: populating movies table from resultData");
 
     // Clear previous results
-    allResultsDiv.insertAdjacentHTML('beforebegin', `
+    // resultsTable.innerHTML = `
+    // <tbody id="allResults">
+    //
+    // </tbody>`;
+    tableHeads.innerHTML = `
     <thead>
         <tr>
             <th>Title</th>
@@ -23,7 +27,8 @@ function handleMoviesResult(resultData) {
             <th>Rating</th>
         </tr>
     </thead>
-    `);
+    `;
+    allResultsDiv.innerHTML = "";
     // Iterate through resultData and display the results
     resultData.forEach(item => {
         const resultRow = document.createElement("tr"); // Create a new table row
@@ -67,32 +72,59 @@ function handleMoviesResult(resultData) {
     });
 
 // If results were added, display the table
-    if (resultData.length > 0) {
-        document.getElementById("resultsTable").style.display = "block";
-    } else {
-        document.getElementById("resultsTable").style.display = "none";
-    }
+//     if (resultData.length > 0) {
+//         document.getElementById("resultsTable").style.display = "block";
+//     } else {
+//         document.getElementById("resultsTable").style.display = "none";
+//     }
 
 }
 
 function handleTitlesResult(resultData){
-    console.log("handleMoviesResult: populating movies table from resultData");
+    console.log("handleTitlesResult: populating title table from resultData");
 
     // Clear previous results
-    allResultsDiv.insertAdjacentHTML('beforebegin', `
+    allResultsDiv.innerHTML = "";
+    tableHeads.innerHTML = `
     <thead>
         <tr>
             <th>ALL MOVIE TITLES</th>
         </tr>
     </thead>
-    `);
+    `;
     // Iterate through resultData and display the results
     resultData.forEach(item => {
         const resultRow = document.createElement("tr");
 
         const titleCell = document.createElement("td");
-        titleCell.innerText = item; // If title is not available, show empty string
+        titleCell.innerHTML = '<a href="index.html?title= ' + item[0] + '&year=&director=&star=">'
+            + item[0] + '</a>';
         resultRow.appendChild(titleCell);
+
+        allResultsDiv.appendChild(resultRow);
+    });
+}
+
+function handleGenresResult(resultData){
+    console.log("handleGenresResult: populating genre table from resultData");
+
+    // Clear previous results
+    tableHeads.innerHTML = `
+    <thead>
+        <tr>
+            <th>ALL MOVIE GENRES</th>
+        </tr>
+    </thead>
+    `;
+    allResultsDiv.innerHTML = "";
+
+    // Iterate through resultData and display the results
+    resultData.forEach(item => {
+        const resultRow = document.createElement("tr");
+
+        const genreCell = document.createElement("td");
+        genreCell.innerText = item; // If title is not available, show empty string
+        resultRow.appendChild(genreCell);
 
         allResultsDiv.appendChild(resultRow);
     });
@@ -103,12 +135,15 @@ console.log("handleStarResult: populating movies table from resultData");
 const searchTitle = document.getElementById('searchTitle');
 const searchYear = document.getElementById('searchYear');
 const searchDirector = document.getElementById('searchDirector');
-// const searchStar = document.getElementById('searchStar');
+const searchStar = document.getElementById('searchStar');
 const searchBtn = document.getElementById('submit');
 const allResultsDiv = document.getElementById('allResults');
+const resultsTable = document.getElementById('resultsTable')
+const tableHeads = document.getElementById("tableHeads")
 
 const titlesBtn = document.getElementById('browse_by_titles');
 const genresBtn = document.getElementById('browse_by_genres');
+
 
 searchBtn.addEventListener('click', function() {
     performSearch();
@@ -125,11 +160,11 @@ function performSearch() {
     const title = searchTitle.value.trim();
     const year = searchYear.value.trim();
     const director = searchDirector.value.trim();
-    // const star = searchStar.value.trim();
+    const star = searchStar.value.trim();
     //console.log(title,encodeURIComponent(title))
-    if (title || year || director) {
+    if (title || year || director || star) {
         $.ajax({
-            url: `api/main_page?title=${encodeURIComponent(title)}&year=${encodeURIComponent(year)}&director=${encodeURIComponent(director)}`,
+            url: `api/main_page?title=${encodeURIComponent(title)}&year=${encodeURIComponent(year)}&director=${encodeURIComponent(director)}&star=${encodeURIComponent(star)}`,
             type: 'GET',
             dataType: 'json',
             success: function(data) {
@@ -155,7 +190,12 @@ function performTitles(){
         type: 'GET',
         dataType: 'json',
         success: function(data) {
-            handleTitlesResult(data)
+            if (data.redirect) {
+                window.location.href = data.redirect; // Redirect with JavaScript
+            } else {
+                //console.log(data)
+                handleTitlesResult(data);
+            }
         },
         error: function(error) {
             console.error("Error fetching search results:", error);
@@ -169,11 +209,15 @@ function performGenres(){
         type: 'GET',
         dataType: 'json',
         success: function(data) {
-
+            if (data.redirect) {
+                window.location.href = data.redirect; // Redirect with JavaScript
+            } else {
+                //console.log(data)
+                handleGenresResult(data);
+            }
         },
         error: function(error) {
             console.error("Error fetching search results:", error);
         }
     });
 }
-

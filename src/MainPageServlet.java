@@ -55,11 +55,11 @@ public class MainPageServlet extends HttpServlet {
             String title = request.getParameter("title");
             String year = request.getParameter("year");
             String director = request.getParameter("director");
-            //String star = request.getParameter("star");
+            String star = request.getParameter("star");
 
             ResultSet rs = null;
 
-            if (title != null || year != null || director != null) {
+            if (title != null || year != null || director != null || star != null) {
                 StringBuilder sql = new StringBuilder("WITH InitialMovies AS (SELECT id,title,year,director FROM movies WHERE 1=1");
 
                 if (title != null && !title.isEmpty()) {
@@ -71,10 +71,14 @@ public class MainPageServlet extends HttpServlet {
                 if (director != null && !director.isEmpty()) {
                     sql.append(" AND director LIKE ?");
                 }
-//                if (star != null && !star.isEmpty()) {
-//                    sql.append(" AND star = ?");
-//                }
                 sql.append(")");
+                if (star != null && !star.isEmpty()) {
+                    sql.append(" Select id, title, year, director, rating, genre1_name," +
+                            "genre1_id, genre2_name, genre2_id, genre3_name, genre3_id," +
+                            "star1_name, star1_id, star2_name, star2_id, star3_name," +
+                            "star3_id FROM (");
+                }
+
                 sql.append("SELECT " +
                         "m.id, m.title, m.year, m.director, r.rating," +
                         "COALESCE((SELECT g.name FROM genres_in_movies gim " +
@@ -146,10 +150,17 @@ public class MainPageServlet extends HttpServlet {
                         "LEFT JOIN ratings r ON m.id = r.movieId ");
                         //+
                         //"ORDER BY r.rating DESC;");
+                if (star != null && !star.isEmpty()) {
+                    sql.append(") AS subquery WHERE star1_name LIKE ? or " +
+                            "star2_name LIKE ? or star3_name LIKE ?;");
+                }
+                else{
+                    sql.append(";");
+                }
                 PreparedStatement stmt = conn.prepareStatement(sql.toString());
                 int index = 1;
                 if (title != null && !title.isEmpty()) {
-                    stmt.setString(index++, "%" + title + "%");
+                    stmt.setString(index++,  title + "%");
                 }
                 if (year != null && !year.isEmpty()) {
                     stmt.setString(index++, year);
@@ -157,9 +168,11 @@ public class MainPageServlet extends HttpServlet {
                 if (director != null && !director.isEmpty()) {
                     stmt.setString(index++, "%" + director + "%");
                 }
-//                if (star != null && !star.isEmpty()) {
-//                    stmt.setString(index++, star);
-//                }
+                if (star != null && !star.isEmpty()) {
+                    stmt.setString(index++, star + "%");
+                    stmt.setString(index++, star + "%");
+                    stmt.setString(index++, star + "%");
+                }
 
                 rs = stmt.executeQuery();
 

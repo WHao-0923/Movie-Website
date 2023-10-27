@@ -50,16 +50,35 @@ function handleMoviesResult(resultData) {
 
         // Create and populate the genres cell
         const genresCell = document.createElement("td");
-        genresCell.innerText = (item.genre1_name + " ") || "";
-        genresCell.innerText += (item.genre2_name + " ") || "";
-        genresCell.innerText += item.genre3_name || ""; // If genre is not available, show empty string
+        if (item.genre1_name){
+            genresCell.innerHTML = '<a href="index.html?title=&year=&director=&star=&genre=' + item.genre1_name +'">'
+                + item.genre1_name + '</a>';
+            genresCell.innerHTML += ' '
+        }
+        if (item.genre2_name && (item.genre2_name != item.genre1_name)){
+            genresCell.innerHTML += '<a href="index.html?title=&year=&director=&star=&genre=' + item.genre2_name +'">'
+                + item.genre2_name + '</a>';
+            genresCell.innerHTML += ' '
+        }
+        if (item.genre3_name && (item.genre3_name != item.genre2_name)){
+            genresCell.innerHTML += '<a href="index.html?title=&year=&director=&star=&genre=' + item.genre3_name +'">'
+                + item.genre3_name + '</a>';
+        }
+        // genresCell.innerText = (item.genre1_name + " ") || "";
+        // genresCell.innerText += (item.genre2_name + " ") || "";
+        // genresCell.innerText += item.genre3_name || ""; // If genre is not available, show empty string
         resultRow.appendChild(genresCell);
 
         // Create and populate the stars cell
         const starsCell = document.createElement("td");
-        starsCell.innerText = (item.star1_name + ", ") || "";
-        starsCell.innerText += (item.star2_name + ", ") || "";
-        starsCell.innerText += item.star3_name || ""; // If genre is not available, show empty string
+        starsCell.innerHTML += '<a href="single-star.html?star_id=' + item.star1_id +'">'
+            + item.star1_name + '</a>';
+        starsCell.innerHTML += ' '
+        starsCell.innerHTML += '<a href="single-star.html?star_id=' + item.star2_id +'">'
+            + item.star2_name + '</a>';
+        starsCell.innerHTML += ' '
+        starsCell.innerHTML += '<a href="single-star.html?star_id=' + item.star3_id +'">'
+            + item.star3_name + '</a>';
         resultRow.appendChild(starsCell);
 
         // Create and populate the rating cell
@@ -178,11 +197,13 @@ function performSearch() {
     let genre = '';
     if (!title && !year && !director && !star) {
         //console.log('INNNNNNNNNNNNN');
-        genre = getParameterByName('genre')
-        title = getParameterByName('title');
-        year = getParameterByName('year');
-        director = getParameterByName('director');
-        star = getParameterByName('star');
+        if (!window.location.href.endsWith('index.html')){
+            genre = getParameterByName('genre')
+            title = getParameterByName('title');
+            year = getParameterByName('year');
+            director = getParameterByName('director');
+            star = getParameterByName('star');
+        }
     }
 
     //console.log(title,encodeURIComponent(title))

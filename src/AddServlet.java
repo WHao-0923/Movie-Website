@@ -88,6 +88,7 @@ public class AddServlet extends HttpServlet {
             else{
                 message = "no such movie";
             }
+            response.setContentType("application/json");
             responseJsonObject.addProperty("message",message);
             // write all the data into the jsonObject
             out.write(responseJsonObject.toString());

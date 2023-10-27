@@ -33,3 +33,17 @@ $(document).ready(function() {
         }
     });
 });
+
+function addToCart() {
+    let movieId = getParameterByName('movie_id');
+    $.ajax({
+        type: "GET",
+        url: `api/add?movie_id=${movieId}`,
+        success: function(data) {
+            alert(data["message"])
+        },
+        error: function() {
+            alert("Failed to add item to cart.");
+        }
+    });
+}

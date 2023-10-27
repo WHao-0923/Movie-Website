@@ -9,9 +9,10 @@
 </head>
 <body>
 <div class="top-navbar">
-    <a href="index.html">
+    <a class="home-button" href="index.html">
         Home
     </a>
+    <a class="nav-link" href="cart.html">Cart</a>
 </div>
 <h1 id="main_title"></h1>
 <h3 id="movie_title"></h3>
@@ -20,7 +21,7 @@
 <p><b>Genres:</b></p><p> <ul id="movie_genres"></ul>
 <p><b>Stars: </b></p><p><ul id="movie_stars"></ul>
 <p><b>Rating:</b></p><p> <span id="movie_rating"></span></p>
-
+<button class="add-to-cart-btn" onclick="addToCart()">Add to Cart</button>
 <script src="./js/single-movie.js"></script>
 </body>
 </html>

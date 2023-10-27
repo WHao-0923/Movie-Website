@@ -5,6 +5,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -40,21 +41,39 @@ public class TitlesServlet extends HttpServlet {
      */
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("application/json"); // Response mime type
+        // Check if has logged in
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("user") == null){
+            //response.sendRedirect("api/login");
+            response.setCharacterEncoding("UTF-8");
+            Map<String, String> responseMap = new HashMap<>();
+            responseMap.put("redirect", "login.html");
+            response.getWriter().write(new Gson().toJson(responseMap));
+            response.setStatus(200);
+            return;
+        }
         PrintWriter out = response.getWriter();
         try (Connection conn = dataSource.getConnection()) {
-            ResultSet rs = null;
-            String query = "SELECT m.id, m.title FROM movies m;";
-            PreparedStatement stmt = conn.prepareStatement(query);
-            rs = stmt.executeQuery();
+            //ResultSet rs = null;
+            //String query = "SELECT m.id, m.title FROM movies m;";
+            //PreparedStatement stmt = conn.prepareStatement(query);
+            //rs = stmt.executeQuery();
             List<String> titles = new ArrayList<>();
-            while (rs.next()) {
-                titles.add(rs.getString("title"));
+            for(int i=0;i<10;i++){
+                titles.add(String.valueOf(i));
+            }
+            for(char alphabet = 'a'; alphabet <='z'; alphabet++ )
+            {
+                //List<String> myTuple = new ArrayList<String>();
+                //myTuple.add(rs.getString("title"));
+                //myTuple.add(rs.getString("id"));
+                titles.add(String.valueOf(alphabet));
             }
             response.setCharacterEncoding("UTF-8");
             response.getWriter().write(new Gson().toJson(titles));
             // Set response status to 200 (OK)
             response.setStatus(200);
-            rs.close();
+            //rs.close();
         } catch (Exception e) {
             // Write error message JSON object to output
             e.printStackTrace();

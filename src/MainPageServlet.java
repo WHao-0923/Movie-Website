@@ -52,14 +52,16 @@ public class MainPageServlet extends HttpServlet {
         // Get the PrintWriter for writing response
         PrintWriter out = response.getWriter();
         try (Connection conn = dataSource.getConnection()){
-            String title = request.getParameter("title");
-            String year = request.getParameter("year");
-            String director = request.getParameter("director");
-            String star = request.getParameter("star");
+            String title = request.getParameter("title").trim();
+            String year = request.getParameter("year").trim();
+            String director = request.getParameter("director").trim();
+            String star = request.getParameter("star").trim();
+            String genre = request.getParameter("genre").trim();
+            //System.out.println("star: "+ star + ", genre: " +genre);
 
             ResultSet rs = null;
 
-            if (title != null || year != null || director != null || star != null) {
+            if (title != null || year != null || director != null || star != null || genre != null) {
                 StringBuilder sql = new StringBuilder("WITH InitialMovies AS (SELECT id,title,year,director FROM movies WHERE 1=1");
 
                 if (title != null && !title.isEmpty()) {
@@ -72,7 +74,7 @@ public class MainPageServlet extends HttpServlet {
                     sql.append(" AND director LIKE ?");
                 }
                 sql.append(")");
-                if (star != null && !star.isEmpty()) {
+                if ((star != null && !star.isEmpty()) || (genre != null && !genre.isEmpty())) {
                     sql.append(" Select id, title, year, director, rating, genre1_name," +
                             "genre1_id, genre2_name, genre2_id, genre3_name, genre3_id," +
                             "star1_name, star1_id, star2_name, star2_id, star3_name," +
@@ -150,7 +152,11 @@ public class MainPageServlet extends HttpServlet {
                         "LEFT JOIN ratings r ON m.id = r.movieId ");
                         //+
                         //"ORDER BY r.rating DESC;");
-                if (star != null && !star.isEmpty()) {
+                if (genre != null && !genre.isEmpty()){
+                    sql.append(") AS subquery WHERE genre1_name LIKE ? or " +
+                            "genre2_name LIKE ? or genre3_name LIKE ?;");
+                }
+                else if (star != null && !star.isEmpty()) {
                     sql.append(") AS subquery WHERE star1_name LIKE ? or " +
                             "star2_name LIKE ? or star3_name LIKE ?;");
                 }
@@ -168,12 +174,17 @@ public class MainPageServlet extends HttpServlet {
                 if (director != null && !director.isEmpty()) {
                     stmt.setString(index++, "%" + director + "%");
                 }
-                if (star != null && !star.isEmpty()) {
+                if (genre != null && !genre.isEmpty()) {
+                    stmt.setString(index++, genre + "%");
+                    stmt.setString(index++, genre + "%");
+                    stmt.setString(index++, genre + "%");
+                }
+                else if (star != null && !star.isEmpty()) {
                     stmt.setString(index++, star + "%");
                     stmt.setString(index++, star + "%");
                     stmt.setString(index++, star + "%");
                 }
-
+                System.out.println(stmt);
                 rs = stmt.executeQuery();
 
                 // Second query to get all the corresponding values
@@ -181,6 +192,7 @@ public class MainPageServlet extends HttpServlet {
                 List<Map<String, Object>> movies = new ArrayList<>();
                 while (rs.next()) {
                     Map<String, Object> movie = new HashMap<>();
+                    movie.put("id", rs.getString("id"));
                     movie.put("title", rs.getString("title"));
                     movie.put("year", rs.getString("year"));
                     movie.put("director", rs.getString("director"));

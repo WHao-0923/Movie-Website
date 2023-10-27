@@ -55,12 +55,16 @@ public class GenresServlet extends HttpServlet {
         PrintWriter out = response.getWriter();
         try (Connection conn = dataSource.getConnection()) {
             ResultSet rs = null;
-            String query = "SELECT g.id, g.name FROM genres g;";
+
+            String query = "SELECT id,name FROM genres;";
             PreparedStatement stmt = conn.prepareStatement(query);
             rs = stmt.executeQuery();
-            List<String> genres = new ArrayList<>();
+            List<List<String>> genres = new ArrayList<>();
             while (rs.next()) {
-                genres.add(rs.getString("name"));
+                List<String> myTuple = new ArrayList<>();
+                myTuple.add(rs.getString("id"));
+                myTuple.add(rs.getString("name"));
+                genres.add(myTuple);
             }
             response.setCharacterEncoding("UTF-8");
             response.getWriter().write(new Gson().toJson(genres));

@@ -7,7 +7,6 @@
  *      1. Use jQuery to talk to backend API to get the json data.
  *      2. Populate the data to correct html elements.
  */
-
 function handleMoviesResult(resultData) {
     console.log("handleMoviesResult: populating movies table from resultData");
 
@@ -35,7 +34,8 @@ function handleMoviesResult(resultData) {
 
         // Create and populate the title cell
         const titleCell = document.createElement("td");
-        titleCell.innerText = item.title || ""; // If title is not available, show empty string
+        titleCell.innerHTML = '<a href="single-movie.html?movie_id=' + item.id + '"a>' +
+            item.title;
         resultRow.appendChild(titleCell);
 
         // Create and populate the year cell
@@ -88,21 +88,30 @@ function handleTitlesResult(resultData){
     tableHeads.innerHTML = `
     <thead>
         <tr>
-            <th>ALL MOVIE TITLES</th>
+            <th>MOVIE TITLE INITIALS</th>
         </tr>
     </thead>
     `;
     // Iterate through resultData and display the results
+    const resultRow = document.createElement("tr");
+    const titleCell = document.createElement("td");
+    titleCell.innerHTML = '<a href="index.html?title=&year=&director=&star=&genre=">'
+        + '*' + '</a>';
+    resultRow.appendChild(titleCell);
+    allResultsDiv.appendChild(resultRow);
+
     resultData.forEach(item => {
         const resultRow = document.createElement("tr");
 
         const titleCell = document.createElement("td");
-        titleCell.innerHTML = '<a href="index.html?title= ' + item[0] + '&year=&director=&star=">'
-            + item[0] + '</a>';
+        console.log(item)
+        titleCell.innerHTML = '<a href="index.html?title=' + item + '&year=&director=&star=&genre=">'
+            + item.toUpperCase() + '</a>';
         resultRow.appendChild(titleCell);
 
         allResultsDiv.appendChild(resultRow);
     });
+
 }
 
 function handleGenresResult(resultData){
@@ -123,7 +132,8 @@ function handleGenresResult(resultData){
         const resultRow = document.createElement("tr");
 
         const genreCell = document.createElement("td");
-        genreCell.innerText = item; // If title is not available, show empty string
+        genreCell.innerHTML = '<a href="index.html?title=&year=&director=&star=&genre=' + item[1] +'">'
+            + item[1] + '</a>';
         resultRow.appendChild(genreCell);
 
         allResultsDiv.appendChild(resultRow);
@@ -156,32 +166,48 @@ genresBtn.addEventListener('click', function() {
     performGenres();
 });
 
+function getParameterByName(name) {
+    let match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+    return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+}
 function performSearch() {
-    const title = searchTitle.value.trim();
-    const year = searchYear.value.trim();
-    const director = searchDirector.value.trim();
-    const star = searchStar.value.trim();
-    //console.log(title,encodeURIComponent(title))
-    if (title || year || director || star) {
-        $.ajax({
-            url: `api/main_page?title=${encodeURIComponent(title)}&year=${encodeURIComponent(year)}&director=${encodeURIComponent(director)}&star=${encodeURIComponent(star)}`,
-            type: 'GET',
-            dataType: 'json',
-            success: function(data) {
-                if (data.redirect) {
-                    window.location.href = data.redirect; // Redirect with JavaScript
-                } else {
-                    //console.log(data)
-                    handleMoviesResult(data);
-                }
-            },
-            error: function(error) {
-                console.error("Error fetching search results:", error);
-            }
-        });
-    } else {
-        alert("Please enter a search term in at least one of the fields.");
+    let title = searchTitle.value.trim();
+    let year = searchYear.value.trim();
+    let director = searchDirector.value.trim();
+    let star = searchStar.value.trim();
+    let genre = '';
+    if (!title && !year && !director && !star) {
+        //console.log('INNNNNNNNNNNNN');
+        genre = getParameterByName('genre')
+        title = getParameterByName('title');
+        year = getParameterByName('year');
+        director = getParameterByName('director');
+        star = getParameterByName('star');
     }
+
+    //console.log(title,encodeURIComponent(title))
+    // if (title || year || director || star) {
+    $.ajax({
+        url: `api/main_page?title=${encodeURIComponent(title)}&year=${encodeURIComponent(year)}&director=${encodeURIComponent(director)}&star=${encodeURIComponent(star)}
+                &genre=${encodeURIComponent(genre)}`,
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            if (data.redirect) {
+                window.location.href = data.redirect; // Redirect with JavaScript
+            } else {
+                //console.log(data)
+                handleMoviesResult(data);
+            }
+        },
+        error: function(error) {
+            console.error("Error fetching search results:", error);
+        }
+    });
+    // }
+    // else {
+    //     alert("Please enter a search term in at least one of the fields.");
+    // }
 }
 
 function performTitles(){
@@ -221,3 +247,4 @@ function performGenres(){
         }
     });
 }
+performSearch();

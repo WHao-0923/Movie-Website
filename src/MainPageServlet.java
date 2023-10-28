@@ -59,13 +59,20 @@ public class MainPageServlet extends HttpServlet {
             String genre = request.getParameter("genre").trim();
             //System.out.println("star: "+ star + ", genre: " +genre);
 
+
             ResultSet rs = null;
 
             if (title != null || year != null || director != null || star != null || genre != null) {
                 StringBuilder sql = new StringBuilder("WITH InitialMovies AS (SELECT id,title,year,director FROM movies WHERE 1=1");
 
                 if (title != null && !title.isEmpty()) {
-                    sql.append(" AND title LIKE ?");
+                    System.out.println(title);
+                    if (title.equals("*")){
+                        sql.append(" AND title REGEXP '^[^a-zA-Z0-9]'");
+                    }
+                    else{
+                        sql.append(" AND title LIKE ?");
+                    }
                 }
                 if (year != null && !year.isEmpty()) {
                     sql.append(" AND year = ?");
@@ -154,19 +161,32 @@ public class MainPageServlet extends HttpServlet {
                         //"ORDER BY r.rating DESC;");
                 if (genre != null && !genre.isEmpty()){
                     sql.append(") AS subquery WHERE genre1_name LIKE ? or " +
-                            "genre2_name LIKE ? or genre3_name LIKE ?;");
+                            "genre2_name LIKE ? or genre3_name LIKE ?");
                 }
                 else if (star != null && !star.isEmpty()) {
                     sql.append(") AS subquery WHERE star1_name LIKE ? or " +
-                            "star2_name LIKE ? or star3_name LIKE ?;");
+                            "star2_name LIKE ? or star3_name LIKE ?");
+                }
+
+
+                String sortValue = request.getParameter("sortBy").trim();
+                String sortOrder = request.getParameter("sortTitle").trim();
+                if (sortValue.equals("title")){
+                    sql.append(" ORDER BY " + sortValue + " " + sortOrder +
+                            ", rating " + sortOrder);
                 }
                 else{
-                    sql.append(";");
+                    sql.append(" ORDER BY " + sortValue + " " + sortOrder +
+                            ", title " + sortOrder);
                 }
+                sql.append(" LIMIT ? OFFSET ?;");
+
                 PreparedStatement stmt = conn.prepareStatement(sql.toString());
                 int index = 1;
                 if (title != null && !title.isEmpty()) {
-                    stmt.setString(index++,  title + "%");
+                    if (!title.equals("*")){
+                        stmt.setString(index++,  title + "%");
+                    }
                 }
                 if (year != null && !year.isEmpty()) {
                     stmt.setString(index++, year);
@@ -184,6 +204,19 @@ public class MainPageServlet extends HttpServlet {
                     stmt.setString(index++, star + "%");
                     stmt.setString(index++, star + "%");
                 }
+                String page = request.getParameter("page").trim();     // current page number
+                String pageSize = request.getParameter("pageSize").trim(); // number of records per page
+                int offset = 0;
+                if (page != null && pageSize != null){
+                    offset = (Integer.valueOf(page) - 1) * Integer.valueOf(pageSize);
+                }
+
+
+                stmt.setInt(index++, Integer.valueOf(pageSize));
+                stmt.setInt(index++, offset);
+
+
+
                 System.out.println(stmt);
                 rs = stmt.executeQuery();
 
@@ -209,6 +242,8 @@ public class MainPageServlet extends HttpServlet {
                     movie.put("star3_name", rs.getString("star3_name"));
                     movie.put("star3_id", rs.getString("star3_id"));
                     movie.put("rating", rs.getString("rating"));
+                    //movie.put("pageSize", rs.getString("pageSize"));
+                    //movie.put("offset",rs.getString("offset"));
 
                     // Add other fields as needed
                     movies.add(movie);

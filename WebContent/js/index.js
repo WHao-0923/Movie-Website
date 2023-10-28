@@ -114,7 +114,7 @@ function handleTitlesResult(resultData){
     // Iterate through resultData and display the results
     const resultRow = document.createElement("tr");
     const titleCell = document.createElement("td");
-    titleCell.innerHTML = '<a href="index.html?title=&year=&director=&star=&genre=">'
+    titleCell.innerHTML = '<a href="index.html?title=' + "*" + '&year=&director=&star=&genre=">'
         + '*' + '</a>';
     resultRow.appendChild(titleCell);
     allResultsDiv.appendChild(resultRow);
@@ -123,7 +123,7 @@ function handleTitlesResult(resultData){
         const resultRow = document.createElement("tr");
 
         const titleCell = document.createElement("td");
-        console.log(item)
+        //console.log(item)
         titleCell.innerHTML = '<a href="index.html?title=' + item + '&year=&director=&star=&genre=">'
             + item.toUpperCase() + '</a>';
         resultRow.appendChild(titleCell);
@@ -159,6 +159,7 @@ function handleGenresResult(resultData){
     });
 }
 
+
 console.log("handleStarResult: populating movies table from resultData");
 
 const searchTitle = document.getElementById('searchTitle');
@@ -173,8 +174,45 @@ const tableHeads = document.getElementById("tableHeads")
 const titlesBtn = document.getElementById('browse_by_titles');
 const genresBtn = document.getElementById('browse_by_genres');
 
+const preBtn = document.getElementById("previous");
+const nextBtn = document.getElementById("next");
+
+const sortBtn = document.getElementById("sortBtn")
+
+let current_page = "1";
+let pageSize = "10";
+let sortValue = "title";
+let sortOrder = "ASC";
+
+document.getElementById('pageSize').addEventListener('change', function() {
+    pageSize = this.value;
+    current_page = 1;  // reset to the first page
+    performSearch();
+});
+document.getElementById('sort').addEventListener('change', function() {
+    sortValue = this.value  // reset to the first page
+});
+document.getElementById('sortOrder').addEventListener('change', function() {
+    sortOrder = this.value  // reset to the first page
+});
+
+preBtn.addEventListener('click', function() {
+    if(current_page > 1) {
+        current_page--;
+        performSearch();
+    }
+});
+
+nextBtn.addEventListener('click', function() {
+    current_page++;
+    performSearch();
+});
 
 searchBtn.addEventListener('click', function() {
+    performSearch();
+});
+
+sortBtn.addEventListener('click', function() {
     performSearch();
 });
 
@@ -195,8 +233,11 @@ function performSearch() {
     let director = searchDirector.value.trim();
     let star = searchStar.value.trim();
     let genre = '';
+    let page = current_page;
+    let page_size = pageSize;
+    let sortBy = sortValue.trim();
+    let sortTitle = sortOrder.trim();
     if (!title && !year && !director && !star) {
-        //console.log('INNNNNNNNNNNNN');
         if (!window.location.href.endsWith('index.html')){
             genre = getParameterByName('genre')
             title = getParameterByName('title');
@@ -210,7 +251,9 @@ function performSearch() {
     // if (title || year || director || star) {
     $.ajax({
         url: `api/main_page?title=${encodeURIComponent(title)}&year=${encodeURIComponent(year)}&director=${encodeURIComponent(director)}&star=${encodeURIComponent(star)}
-                &genre=${encodeURIComponent(genre)}`,
+                &genre=${encodeURIComponent(genre)}&page=${encodeURIComponent(page)}
+                &pageSize=${encodeURIComponent(page_size)}&sortBy=${encodeURIComponent(sortBy)}
+                &sortTitle=${encodeURIComponent(sortTitle)}`,
         type: 'GET',
         dataType: 'json',
         success: function(data) {
@@ -268,4 +311,4 @@ function performGenres(){
         }
     });
 }
-performSearch();
+performSearch(current_page);

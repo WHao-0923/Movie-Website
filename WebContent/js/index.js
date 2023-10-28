@@ -24,6 +24,7 @@ function handleMoviesResult(resultData) {
             <th>Genres</th>
             <th>Stars</th>
             <th>Rating</th>
+            <th>Cart</th>
         </tr>
     </thead>
     `;
@@ -64,9 +65,7 @@ function handleMoviesResult(resultData) {
             genresCell.innerHTML += '<a href="index.html?title=&year=&director=&star=&genre=' + item.genre3_name +'">'
                 + item.genre3_name + '</a>';
         }
-        // genresCell.innerText = (item.genre1_name + " ") || "";
-        // genresCell.innerText += (item.genre2_name + " ") || "";
-        // genresCell.innerText += item.genre3_name || ""; // If genre is not available, show empty string
+
         resultRow.appendChild(genresCell);
 
         // Create and populate the stars cell
@@ -85,6 +84,30 @@ function handleMoviesResult(resultData) {
         const ratingCell = document.createElement("td");
         ratingCell.innerText = item.rating || ""; // If rating is not available, show empty string
         resultRow.appendChild(ratingCell);
+
+        const cartCell = document.createElement("td");
+        // Create the button element
+        const addToCartButton = document.createElement("button");
+        addToCartButton.innerText = "Add to Cart";
+        addToCartButton.className = "addToCartButton"; // Optional: if you want to apply styles via CSS
+        // Add event listener to the button for functionality
+        addToCartButton.addEventListener('click', function() {
+            $.ajax({
+                url: `api/add?movie_id=${item.id}`,
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    alert(data["message"])
+                },
+                error: function(error) {
+                    console.error("Error fetching search results:", error);
+                }
+            });
+        });
+
+        cartCell.appendChild(addToCartButton);
+        resultRow.appendChild(cartCell);
+
 
         // Append the filled row to the results table
         allResultsDiv.appendChild(resultRow);

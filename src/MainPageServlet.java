@@ -251,6 +251,15 @@ public class MainPageServlet extends HttpServlet {
 
                 response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");
+
+                if (session.getAttribute("jump") == null){
+                    session.setAttribute("jump",movies);
+                }
+                else{
+                    movies = (List)session.getAttribute("jump");
+                    session.setAttribute("jump",null);
+                }
+
                 response.getWriter().write(new Gson().toJson(movies));
 
                 // Set response status to 200 (OK)

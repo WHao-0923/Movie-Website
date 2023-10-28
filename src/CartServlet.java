@@ -69,6 +69,7 @@ public class CartServlet extends HttpServlet {
      */
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         HttpSession session = request.getSession();
+        response.setContentType("application/json"); // Response mime type
 
         JsonObject responseJsonObject = new JsonObject();
         PrintWriter out = response.getWriter();

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Page</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+<body>
+<h1>Payment Page</h1>
+<div id="total-price">Total Price: $<span id="price">0</span></div>
+
+<form id="payment-form" action="api/pay" method="post">
+    <label>First Name: <input type="text" id="first-name" required></label><br>
+    <label>Last Name: <input type="text" id="last-name" required></label><br>
+    <label>Credit Card Number: <input type="text" id="card-number" required></label><br>
+    <label>Expiration Date: <input type="date" id="expiration-date" value="2008-06-12" required></label><br>
+    <button type="submit">Place Order</button>
+</form>
+
+<div id="error-message" style="color: red;"></div>
+<script src="./js/pay.js"></script>
+</body>
+</html>

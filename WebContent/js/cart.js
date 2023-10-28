@@ -2,13 +2,15 @@ document.addEventListener('DOMContentLoaded', function () {
     updateCart();
 });
 
+var totalPrice = 0;
+
 function updateCart() {
     fetch('api/cart')
         .then(response => response.json())
         .then(data => {
             const tbody = document.querySelector('#cart-table tbody');
             tbody.innerHTML = '';
-            let totalPrice = 0;
+            // let totalPrice = 0;
             data.previousItems.forEach(item => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -60,5 +62,10 @@ function removeFromCart(mid) {
 }
 
 function proceedToPayment() {
-    window.location.href = '/payment';
+    if (totalPrice<=0){
+        alert("Empty cart!");
+    }
+    else{
+        window.location.href = 'pay.html';
+    }
 }

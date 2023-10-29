@@ -65,28 +65,6 @@ public class MainPageServlet extends HttpServlet {
             ResultSet rs = null;
 
 
-//            String jumped = (String)session.getAttribute("referrer");
-//            List<String> saved_params = new ArrayList<>();
-//            saved_params.add(title);
-//            saved_params.add(year);
-//            saved_params.add(director);
-//            saved_params.add(genre);
-//            saved_params.add(page);
-//            saved_params.add(pageSize);
-
-//            List last_params = (List) session.getAttribute("jump");
-//            if (last_params != null && jumped!=null && (jumped.equals("single-star") || jumped.equals("single-movie")|| jumped.equals("cart"))){
-//                List<String> last_list = (List) session.getAttribute("jump");
-//                title = last_list.get(0);
-//                year = last_list.get(1);
-//                director = last_list.get(2);
-//                genre = last_list.get(3);
-//                page = last_list.get(4);
-//                pageSize = last_list.get(5);
-//                session.setAttribute("referrer",null);
-//            }
-//            session.setAttribute("jump",last_params);
-
             if (title != null || year != null || director != null || star != null || genre != null) {
                 StringBuilder sql = new StringBuilder("WITH InitialMovies AS (SELECT id,title,year,director FROM movies WHERE 1=1");
 
@@ -257,7 +235,7 @@ public class MainPageServlet extends HttpServlet {
                     movie.put("genre1_id", rs.getString("genre1_id"));
                     movie.put("genre2_name", rs.getString("genre2_name"));
                     movie.put("genre2_id", rs.getString("genre2_id"));
-                    movie.put("genre3_name", rs.getString("genre2_name"));
+                    movie.put("genre3_name", rs.getString("genre3_name"));
                     movie.put("genre3_id", rs.getString("genre3_id"));
                     movie.put("star1_name", rs.getString("star1_name"));
                     movie.put("star1_id", rs.getString("star1_id"));

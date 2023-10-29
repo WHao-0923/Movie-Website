@@ -147,7 +147,7 @@ function handleTitlesResult(resultData){
 
         const titleCell = document.createElement("td");
         //console.log(item)
-        titleCell.innerHTML = '<a href="index.html?title=' + item + '&year=&director=&star=&genre=">'
+        titleCell.innerHTML = '<a href="index.html?title=' + item + '&year=&director=&star=&genre=&refresh=true">'
             + item.toUpperCase() + '</a>';
         resultRow.appendChild(titleCell);
 
@@ -174,7 +174,7 @@ function handleGenresResult(resultData){
         const resultRow = document.createElement("tr");
 
         const genreCell = document.createElement("td");
-        genreCell.innerHTML = '<a href="index.html?title=&year=&director=&star=&genre=' + item[1] +'">'
+        genreCell.innerHTML = '<a href="index.html?title=&year=&director=&star=&genre=' + item[1] +'&refresh=true">'
             + item[1] + '</a>';
         resultRow.appendChild(genreCell);
 
@@ -284,42 +284,45 @@ function performSearch() {
             star = getParameterByName('star');
         }
     }
-    if (sessionStorage.getItem('page')) {
-        page = sessionStorage.getItem('page').trim();
-    }
-    if (sessionStorage.getItem('pageSize')) {
-        document.getElementById('pageSize').value = sessionStorage.getItem('pageSize');
-        page_size = sessionStorage.getItem('pageSize').trim();
+    if(getParameterByName("refresh")==null || getParameterByName("refresh") != "true"){
+        if (sessionStorage.getItem('page')) {
+            page = sessionStorage.getItem('page').trim();
+        }
+        if (sessionStorage.getItem('pageSize')) {
+            document.getElementById('pageSize').value = sessionStorage.getItem('pageSize');
+            page_size = sessionStorage.getItem('pageSize').trim();
+        }
+
+        if (sessionStorage.getItem('sort')) {
+            document.getElementById('sort').value = sessionStorage.getItem('sort');
+            sortBy = sessionStorage.getItem('sort').trim();
+        }
+
+        if (sessionStorage.getItem('sortOrder')) {
+            document.getElementById('sortOrder').value = sessionStorage.getItem('sortOrder');
+            sortTitle = sessionStorage.getItem('sortOrder').trim();
+        }
+        if (sessionStorage.getItem('searchTitle')) {
+            document.getElementById('searchTitle').value = sessionStorage.getItem('searchTitle');
+            title = sessionStorage.getItem('searchTitle').trim();
+        }
+
+        if (sessionStorage.getItem('searchYear')) {
+            document.getElementById('searchYear').value = sessionStorage.getItem('searchYear');
+            year = sessionStorage.getItem('searchYear').trim();
+        }
+
+        if (sessionStorage.getItem('searchDirector')) {
+            document.getElementById('searchDirector').value = sessionStorage.getItem('searchDirector');
+            director = sessionStorage.getItem('searchDirector').trim();
+        }
+
+        if (sessionStorage.getItem('searchStar')) {
+            document.getElementById('searchStar').value = sessionStorage.getItem('searchStar');
+            star = sessionStorage.getItem('searchStar').trim();
+        }
     }
 
-    if (sessionStorage.getItem('sort')) {
-        document.getElementById('sort').value = sessionStorage.getItem('sort');
-        sortBy = sessionStorage.getItem('sort').trim();
-    }
-
-    if (sessionStorage.getItem('sortOrder')) {
-        document.getElementById('sortOrder').value = sessionStorage.getItem('sortOrder');
-        sortTitle = sessionStorage.getItem('sortOrder').trim();
-    }
-    if (sessionStorage.getItem('searchTitle')) {
-        document.getElementById('searchTitle').value = sessionStorage.getItem('searchTitle');
-        title = sessionStorage.getItem('searchTitle').trim();
-    }
-
-    if (sessionStorage.getItem('searchYear')) {
-        document.getElementById('searchYear').value = sessionStorage.getItem('searchYear');
-        year = sessionStorage.getItem('searchYear').trim();
-    }
-
-    if (sessionStorage.getItem('searchDirector')) {
-        document.getElementById('searchDirector').value = sessionStorage.getItem('searchDirector');
-        director = sessionStorage.getItem('searchDirector').trim();
-    }
-
-    if (sessionStorage.getItem('searchStar')) {
-        document.getElementById('searchStar').value = sessionStorage.getItem('searchStar');
-        star = sessionStorage.getItem('searchStar').trim();
-    }
 
 
 

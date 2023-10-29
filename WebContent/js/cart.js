@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', function () {
     updateCart();
 });
 
-var totalPrice = 0;
+let totalPrice = 0;
 
 function updateCart() {
     fetch('api/cart')
@@ -10,7 +10,7 @@ function updateCart() {
         .then(data => {
             const tbody = document.querySelector('#cart-table tbody');
             tbody.innerHTML = '';
-            // let totalPrice = 0;
+            totalPrice = 0;
             data.previousItems.forEach(item => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -25,6 +25,7 @@ function updateCart() {
                     <td>$${item.price.toFixed(2)}</td>
                     <td>$${(item.price * item.quantity).toFixed(2)}</td>
                     <td><button onclick="removeFromCart('${item.movie_id}')">Remove</button></td>
+                   
                 `;
                 tbody.appendChild(row);
                 totalPrice += item.price * item.quantity;

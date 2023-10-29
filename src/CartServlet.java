@@ -99,6 +99,7 @@ public class CartServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("application/json"); // Response mime type
 
+
         // Read request body
         StringBuilder buffer = new StringBuilder();
         BufferedReader reader = request.getReader();
@@ -117,6 +118,7 @@ public class CartServlet extends HttpServlet {
         request.getServletContext().log("Cart: num "+num+" "+movie_id+" "+actionType);
 
         HttpSession session = request.getSession();
+
         String message = "";
 
         // get the previous items in a ArrayList

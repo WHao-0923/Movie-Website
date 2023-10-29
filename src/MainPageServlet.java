@@ -189,7 +189,7 @@ public class MainPageServlet extends HttpServlet {
                 int index = 1;
                 if (title != null && !title.isEmpty()) {
                     if (!title.equals("*")){
-                        stmt.setString(index++,  title + "%");
+                        stmt.setString(index++,  "%" + title + "%");
                     }
                 }
                 if (year != null && !year.isEmpty()) {
@@ -204,9 +204,9 @@ public class MainPageServlet extends HttpServlet {
                     stmt.setString(index++, genre + "%");
                 }
                 else if (star != null && !star.isEmpty()) {
-                    stmt.setString(index++, star + "%");
-                    stmt.setString(index++, star + "%");
-                    stmt.setString(index++, star + "%");
+                    stmt.setString(index++, "%" + star + "%");
+                    stmt.setString(index++, "%" + star + "%");
+                    stmt.setString(index++, "%" + star + "%");
                 }
 
                 int offset = 0;

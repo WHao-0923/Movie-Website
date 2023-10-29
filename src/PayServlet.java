@@ -58,6 +58,7 @@ public class PayServlet extends HttpServlet {
         String last_name = json.getAsJsonPrimitive("last_name").getAsString();
         String card_number = json.getAsJsonPrimitive("card_number").getAsString();
         String expiration = json.getAsJsonPrimitive("expiration").getAsString();
+        //card_number = card_number.replaceAll("(.{4})", "$1 ").trim();
 
         request.getServletContext().log("Pay: customer "+first_name+" "+last_name);
 
@@ -83,6 +84,10 @@ public class PayServlet extends HttpServlet {
                 statement.setString(2, first_name);
                 statement.setString(3, last_name);
                 statement.setString(4,expiration);
+//                System.out.println(card_number);
+//                System.out.println(first_name);
+//                System.out.println(last_name);
+//                System.out.println(expiration);
 
                 // Perform the query
                 ResultSet rs = statement.executeQuery();

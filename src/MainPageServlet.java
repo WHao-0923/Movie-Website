@@ -58,9 +58,34 @@ public class MainPageServlet extends HttpServlet {
             String star = request.getParameter("star").trim();
             String genre = request.getParameter("genre").trim();
             //System.out.println("star: "+ star + ", genre: " +genre);
+            String page = request.getParameter("page").trim();     // current page number
+            String pageSize = request.getParameter("pageSize").trim(); // number of records per page
 
 
             ResultSet rs = null;
+
+
+//            String jumped = (String)session.getAttribute("referrer");
+//            List<String> saved_params = new ArrayList<>();
+//            saved_params.add(title);
+//            saved_params.add(year);
+//            saved_params.add(director);
+//            saved_params.add(genre);
+//            saved_params.add(page);
+//            saved_params.add(pageSize);
+
+//            List last_params = (List) session.getAttribute("jump");
+//            if (last_params != null && jumped!=null && (jumped.equals("single-star") || jumped.equals("single-movie")|| jumped.equals("cart"))){
+//                List<String> last_list = (List) session.getAttribute("jump");
+//                title = last_list.get(0);
+//                year = last_list.get(1);
+//                director = last_list.get(2);
+//                genre = last_list.get(3);
+//                page = last_list.get(4);
+//                pageSize = last_list.get(5);
+//                session.setAttribute("referrer",null);
+//            }
+//            session.setAttribute("jump",last_params);
 
             if (title != null || year != null || director != null || star != null || genre != null) {
                 StringBuilder sql = new StringBuilder("WITH InitialMovies AS (SELECT id,title,year,director FROM movies WHERE 1=1");
@@ -181,6 +206,7 @@ public class MainPageServlet extends HttpServlet {
                 }
                 sql.append(" LIMIT ? OFFSET ?;");
 
+
                 PreparedStatement stmt = conn.prepareStatement(sql.toString());
                 int index = 1;
                 if (title != null && !title.isEmpty()) {
@@ -204,8 +230,7 @@ public class MainPageServlet extends HttpServlet {
                     stmt.setString(index++, star + "%");
                     stmt.setString(index++, star + "%");
                 }
-                String page = request.getParameter("page").trim();     // current page number
-                String pageSize = request.getParameter("pageSize").trim(); // number of records per page
+
                 int offset = 0;
                 if (page != null && pageSize != null){
                     offset = (Integer.valueOf(page) - 1) * Integer.valueOf(pageSize);
@@ -215,9 +240,8 @@ public class MainPageServlet extends HttpServlet {
                 stmt.setInt(index++, Integer.valueOf(pageSize));
                 stmt.setInt(index++, offset);
 
-
-
                 System.out.println(stmt);
+
                 rs = stmt.executeQuery();
 
                 // Second query to get all the corresponding values
@@ -253,14 +277,6 @@ public class MainPageServlet extends HttpServlet {
                 response.setCharacterEncoding("UTF-8");
 
                 //System.out.println(session.getAttribute("jump"));
-                String jumped = (String)session.getAttribute("referrer");
-
-                if (jumped!=null && (jumped.equals("single-star") || jumped.equals("single-movie")|| jumped.equals("cart"))){
-                    movies = (List)session.getAttribute("jump");
-                    session.setAttribute("referrer",null);
-                }
-                session.setAttribute("jump",movies);
-
 
                 response.getWriter().write(new Gson().toJson(movies));
 

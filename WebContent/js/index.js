@@ -185,10 +185,10 @@ function handleGenresResult(resultData){
 
 console.log("handleStarResult: populating movies table from resultData");
 
-const searchTitle = document.getElementById('searchTitle');
-const searchYear = document.getElementById('searchYear');
-const searchDirector = document.getElementById('searchDirector');
-const searchStar = document.getElementById('searchStar');
+let searchTitle = document.getElementById('searchTitle');
+let searchYear = document.getElementById('searchYear');
+let searchDirector = document.getElementById('searchDirector');
+let searchStar = document.getElementById('searchStar');
 const searchBtn = document.getElementById('submit');
 const allResultsDiv = document.getElementById('allResults');
 const resultsTable = document.getElementById('resultsTable')
@@ -201,8 +201,12 @@ const preBtn = document.getElementById("previous");
 const nextBtn = document.getElementById("next");
 
 const sortBtn = document.getElementById("sortBtn")
-
 let current_page = "1";
+if (sessionStorage.getItem('page')){
+    current_page = sessionStorage.getItem("page");
+}
+
+
 let pageSize = "10";
 let sortValue = "title";
 let sortOrder = "ASC";
@@ -210,28 +214,38 @@ let sortOrder = "ASC";
 document.getElementById('pageSize').addEventListener('change', function() {
     pageSize = this.value;
     current_page = 1;  // reset to the first page
+    sessionStorage.setItem('pageSize', this.value);
     performSearch();
 });
 document.getElementById('sort').addEventListener('change', function() {
     sortValue = this.value  // reset to the first page
+    sessionStorage.setItem('sort', this.value);
 });
 document.getElementById('sortOrder').addEventListener('change', function() {
     sortOrder = this.value  // reset to the first page
+    sessionStorage.setItem('sortOrder', this.value);
 });
 
 preBtn.addEventListener('click', function() {
     if(current_page > 1) {
         current_page--;
+        sessionStorage.setItem('page', current_page);
         performSearch();
     }
 });
 
 nextBtn.addEventListener('click', function() {
     current_page++;
+    sessionStorage.setItem('page', current_page);
     performSearch();
 });
 
 searchBtn.addEventListener('click', function() {
+    sessionStorage.setItem('searchTitle', searchTitle.value);
+    sessionStorage.setItem('searchYear', searchYear.value);
+    sessionStorage.setItem('searchDirector', searchDirector.value);
+    sessionStorage.setItem('searchStar', searchStar.value);
+
     performSearch();
 });
 
@@ -245,6 +259,7 @@ titlesBtn.addEventListener('click', function() {
 genresBtn.addEventListener('click', function() {
     performGenres();
 });
+
 
 function getParameterByName(name) {
     let match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
@@ -261,7 +276,7 @@ function performSearch() {
     let sortBy = sortValue.trim();
     let sortTitle = sortOrder.trim();
     if (!title && !year && !director && !star) {
-        if (!window.location.href.endsWith('index.html')){
+        if (!window.location.href.endsWith('index.html')) {
             genre = getParameterByName('genre')
             title = getParameterByName('title');
             year = getParameterByName('year');
@@ -269,6 +284,44 @@ function performSearch() {
             star = getParameterByName('star');
         }
     }
+    if (sessionStorage.getItem('page')) {
+        page = sessionStorage.getItem('page').trim();
+    }
+    if (sessionStorage.getItem('pageSize')) {
+        document.getElementById('pageSize').value = sessionStorage.getItem('pageSize');
+        page_size = sessionStorage.getItem('pageSize').trim();
+    }
+
+    if (sessionStorage.getItem('sort')) {
+        document.getElementById('sort').value = sessionStorage.getItem('sort');
+        sortBy = sessionStorage.getItem('sort').trim();
+    }
+
+    if (sessionStorage.getItem('sortOrder')) {
+        document.getElementById('sortOrder').value = sessionStorage.getItem('sortOrder');
+        sortTitle = sessionStorage.getItem('sortOrder').trim();
+    }
+    if (sessionStorage.getItem('searchTitle')) {
+        document.getElementById('searchTitle').value = sessionStorage.getItem('searchTitle');
+        title = sessionStorage.getItem('searchTitle').trim();
+    }
+
+    if (sessionStorage.getItem('searchYear')) {
+        document.getElementById('searchYear').value = sessionStorage.getItem('searchYear');
+        year = sessionStorage.getItem('searchYear').trim();
+    }
+
+    if (sessionStorage.getItem('searchDirector')) {
+        document.getElementById('searchDirector').value = sessionStorage.getItem('searchDirector');
+        director = sessionStorage.getItem('searchDirector').trim();
+    }
+
+    if (sessionStorage.getItem('searchStar')) {
+        document.getElementById('searchStar').value = sessionStorage.getItem('searchStar');
+        star = sessionStorage.getItem('searchStar').trim();
+    }
+
+
 
     //console.log(title,encodeURIComponent(title))
     // if (title || year || director || star) {
@@ -334,4 +387,5 @@ function performGenres(){
         }
     });
 }
+
 performSearch();

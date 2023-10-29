@@ -121,6 +121,7 @@ public class CartServlet extends HttpServlet {
 
         // get the previous items in a ArrayList
         ArrayList<Merchandise> previousItems = (ArrayList<Merchandise>) session.getAttribute("previousItems");
+        session.setAttribute("referrer","cart");
         if (previousItems == null) {
             previousItems = new ArrayList<Merchandise>();
             session.setAttribute("previousItems", previousItems);

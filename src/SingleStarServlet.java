@@ -124,6 +124,7 @@ public class SingleStarServlet extends HttpServlet {
                 // Set response status to 500 (Internal Server Error)
                 response.setStatus(500);
             } finally {
+                session.setAttribute("referrer", "single-star");
                 out.close();
             }
         }

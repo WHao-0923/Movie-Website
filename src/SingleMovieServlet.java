@@ -152,6 +152,7 @@ public class SingleMovieServlet extends HttpServlet {
                 // Set response status to 500 (Internal Server Error)
                 response.setStatus(500);
             } finally {
+                session.setAttribute("referrer", "single-movie");
                 out.close();
             }
         }

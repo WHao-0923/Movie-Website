@@ -18,7 +18,7 @@
         }
 
         h1 {
-            background-color: #333;
+            /*background-color: #333;*/
             color: white;
             text-align: center;
             padding: 20px 0;
@@ -64,12 +64,44 @@
         .table-fixed tr {
             display: flex;
         }
+        .cart-button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 12px;
+        }
+
+        .cart-button:hover {
+            background-color: #45a049;
+        }
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #333;  /* Setting a black background */
+            padding: 10px 20px;          /* Some vertical padding to give space */
+        }
+        .title-container {
+            padding-left: 150px;
+            flex: 1;
+        }
     </style>
 </head>
 
 <body>
-<h1>Fabflix</h1>
-
+<div class="header-container">
+    <div class="title-container">
+        <h1>Fabflix</h1>
+    </div>
+    <a class="cart-button" href="cart.html">Shopping Cart</a>
+</div>
 
 <input type="text" id="searchTitle" placeholder="Search by title...">
 <input type="text" id="searchYear" placeholder="Search by year...">

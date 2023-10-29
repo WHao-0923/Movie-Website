@@ -72,10 +72,10 @@ function handleMoviesResult(resultData) {
         const starsCell = document.createElement("td");
         starsCell.innerHTML += '<a href="single-star.html?star_id=' + item.star1_id +'">'
             + item.star1_name + '</a>';
-        starsCell.innerHTML += ' '
+        starsCell.innerHTML += ', '
         starsCell.innerHTML += '<a href="single-star.html?star_id=' + item.star2_id +'">'
             + item.star2_name + '</a>';
-        starsCell.innerHTML += ' '
+        starsCell.innerHTML += ', '
         starsCell.innerHTML += '<a href="single-star.html?star_id=' + item.star3_id +'">'
             + item.star3_name + '</a>';
         resultRow.appendChild(starsCell);
@@ -334,4 +334,4 @@ function performGenres(){
         }
     });
 }
-performSearch(current_page);
+performSearch();

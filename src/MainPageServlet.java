@@ -252,19 +252,22 @@ public class MainPageServlet extends HttpServlet {
                 response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");
 
-                if (session.getAttribute("jump") == null){
-                    session.setAttribute("jump",movies);
-                }
-                else{
+                //System.out.println(session.getAttribute("jump"));
+                String jumped = (String)session.getAttribute("referrer");
+
+                if (jumped!=null && (jumped.equals("single-star") || jumped.equals("single-movie")|| jumped.equals("cart"))){
                     movies = (List)session.getAttribute("jump");
-                    session.setAttribute("jump",null);
+                    session.setAttribute("referrer",null);
                 }
+                session.setAttribute("jump",movies);
+
 
                 response.getWriter().write(new Gson().toJson(movies));
 
                 // Set response status to 200 (OK)
                 response.setStatus(200);
                 rs.close();
+
 
             } else {
                 // Handle empty or invalid input

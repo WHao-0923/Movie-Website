@@ -95,7 +95,7 @@ public class PayServlet extends HttpServlet {
                     for (Merchandise item : previousItems ){
                         String q2 = "Insert into sales (customerId,movieId,quantity,sid,saleDate) values (?,?,?,?,?)";
                         PreparedStatement s = conn.prepareStatement(q2);
-                        s.setString(1, card_number);
+                        s.setString(1, (String) session.getAttribute("uid"));
                         s.setString(2, item.mid);
                         s.setInt(3, item.quantity);
                         s.setString(4,transaction_id);

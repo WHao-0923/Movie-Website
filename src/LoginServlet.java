@@ -83,6 +83,7 @@ public class LoginServlet extends HttpServlet {
                 // 5. 处理登录
                 response.setStatus(200);
                 request.getSession().setAttribute("user", email);
+                request.getSession().setAttribute("uid",rs.getString("id"));
             } else {
                 response.setStatus(401);
                 JsonObject jsonObject = new JsonObject();

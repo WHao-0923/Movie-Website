@@ -7,6 +7,7 @@
  *      1. Use jQuery to talk to backend API to get the json data.
  *      2. Populate the data to correct html elements.
  */
+
 function handleMoviesResult(resultData) {
     console.log("handleMoviesResult: populating movies table from resultData");
 
@@ -52,17 +53,17 @@ function handleMoviesResult(resultData) {
         // Create and populate the genres cell
         const genresCell = document.createElement("td");
         if (item.genre1_name){
-            genresCell.innerHTML = '<a href="index.html?title=&year=&director=&star=&genre=' + item.genre1_name +'">'
+            genresCell.innerHTML = '<a href="index.html?title=&year=&director=&star=&genre=' + item.genre1_name +'&refresh=true">'
                 + item.genre1_name + '</a>';
             genresCell.innerHTML += ' '
         }
         if (item.genre2_name && (item.genre2_name != item.genre1_name)){
-            genresCell.innerHTML += '<a href="index.html?title=&year=&director=&star=&genre=' + item.genre2_name +'">'
+            genresCell.innerHTML += '<a href="index.html?title=&year=&director=&star=&genre=' + item.genre2_name +'&refresh=true">'
                 + item.genre2_name + '</a>';
             genresCell.innerHTML += ' '
         }
         if (item.genre3_name && (item.genre3_name != item.genre2_name)){
-            genresCell.innerHTML += '<a href="index.html?title=&year=&director=&star=&genre=' + item.genre3_name +'">'
+            genresCell.innerHTML += '<a href="index.html?title=&year=&director=&star=&genre=' + item.genre3_name +'&refresh=true">'
                 + item.genre3_name + '</a>';
         }
 
@@ -137,7 +138,7 @@ function handleTitlesResult(resultData){
     // Iterate through resultData and display the results
     const resultRow = document.createElement("tr");
     const titleCell = document.createElement("td");
-    titleCell.innerHTML = '<a href="index.html?title=' + "*" + '&year=&director=&star=&genre=">'
+    titleCell.innerHTML = '<a href="index.html?title=' + "*" + '&year=&director=&star=&genre=&refresh=true">'
         + '*' + '</a>';
     resultRow.appendChild(titleCell);
     allResultsDiv.appendChild(resultRow);
@@ -201,7 +202,7 @@ const preBtn = document.getElementById("previous");
 const nextBtn = document.getElementById("next");
 
 const sortBtn = document.getElementById("sortBtn")
-let current_page = "1";
+let current_page = 1;
 if (sessionStorage.getItem('page')){
     current_page = sessionStorage.getItem("page");
 }
@@ -209,13 +210,13 @@ if (sessionStorage.getItem('page')){
 
 let pageSize = "10";
 let sortValue = "title";
-let sortOrder = "ASC";
+let sortOrder = "ascasc";
 
 document.getElementById('pageSize').addEventListener('change', function() {
     pageSize = this.value;
     current_page = 1;  // reset to the first page
     sessionStorage.setItem('pageSize', this.value);
-    performSearch();
+    performSearch(false);
 });
 document.getElementById('sort').addEventListener('change', function() {
     sortValue = this.value  // reset to the first page
@@ -230,14 +231,14 @@ preBtn.addEventListener('click', function() {
     if(current_page > 1) {
         current_page--;
         sessionStorage.setItem('page', current_page);
-        performSearch();
+        performSearch(false);
     }
 });
 
 nextBtn.addEventListener('click', function() {
     current_page++;
     sessionStorage.setItem('page', current_page);
-    performSearch();
+    performSearch(false);
 });
 
 searchBtn.addEventListener('click', function() {
@@ -245,12 +246,11 @@ searchBtn.addEventListener('click', function() {
     sessionStorage.setItem('searchYear', searchYear.value);
     sessionStorage.setItem('searchDirector', searchDirector.value);
     sessionStorage.setItem('searchStar', searchStar.value);
-
-    performSearch();
+    performSearch(true);
 });
 
 sortBtn.addEventListener('click', function() {
-    performSearch();
+    performSearch(false);
 });
 
 titlesBtn.addEventListener('click', function() {
@@ -265,26 +265,49 @@ function getParameterByName(name) {
     let match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
     return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
 }
-function performSearch() {
+function performSearch(search) {
     let title = searchTitle.value.trim();
     let year = searchYear.value.trim();
     let director = searchDirector.value.trim();
     let star = searchStar.value.trim();
     let genre = '';
+    //sessionStorage.setItem("genre",null);
     let page = current_page;
     let page_size = pageSize;
     let sortBy = sortValue.trim();
     let sortTitle = sortOrder.trim();
     if (!title && !year && !director && !star) {
-        if (!window.location.href.endsWith('index.html')) {
-            genre = getParameterByName('genre')
-            title = getParameterByName('title');
-            year = getParameterByName('year');
-            director = getParameterByName('director');
-            star = getParameterByName('star');
+        if (getParameterByName('genre')!=null){
+            if (!window.location.href.endsWith('index.html')&&!window.location.href.endsWith('login.html')) {
+                genre = getParameterByName('genre');
+                sessionStorage.setItem("genre",genre);
+                title = getParameterByName('title');
+                year = getParameterByName('year');
+                director = getParameterByName('director');
+                star = getParameterByName('star');
+            }
         }
     }
-    if(getParameterByName("refresh")==null || getParameterByName("refresh") != "true"){
+
+    if(getParameterByName("refresh")==null || getParameterByName("refresh") != 'true'){
+        console.log('########## restore');
+        console.log(sessionStorage.getItem("genre"));
+        if (search){
+            sessionStorage.setItem("genre",'');
+            genre = '';
+        }
+        if (!search && sessionStorage.getItem('genre')!='' &&
+            (sessionStorage.getItem('searchTitle')!='' ||
+                sessionStorage.getItem('searchYear')!='' ||
+                sessionStorage.getItem('searchDirector')!='' ||
+                sessionStorage.getItem('searchStar')!='')) {
+            genre = sessionStorage.getItem('genre');
+            console.log('########## CLEARED')
+            sessionStorage.setItem('searchTitle', '');
+            sessionStorage.setItem('searchYear', '');
+            sessionStorage.setItem('searchDirector', '');
+            sessionStorage.setItem('searchStar', '');
+        }
         if (sessionStorage.getItem('page')) {
             page = sessionStorage.getItem('page').trim();
         }
@@ -302,6 +325,7 @@ function performSearch() {
             document.getElementById('sortOrder').value = sessionStorage.getItem('sortOrder');
             sortTitle = sessionStorage.getItem('sortOrder').trim();
         }
+
         if (sessionStorage.getItem('searchTitle')) {
             document.getElementById('searchTitle').value = sessionStorage.getItem('searchTitle');
             title = sessionStorage.getItem('searchTitle').trim();
@@ -324,8 +348,6 @@ function performSearch() {
     }
 
 
-
-
     //console.log(title,encodeURIComponent(title))
     // if (title || year || director || star) {
     $.ajax({
@@ -340,17 +362,20 @@ function performSearch() {
                 window.location.href = data.redirect; // Redirect with JavaScript
             } else {
                 //console.log(data)
-                handleMoviesResult(data);
+                if (data.length>=1) {
+                    handleMoviesResult(data);
+                }
+                else{
+                    if (current_page > 1){
+                        current_page--;
+                    }
+                }
             }
         },
         error: function(error) {
             console.error("Error fetching search results:", error);
         }
     });
-    // }
-    // else {
-    //     alert("Please enter a search term in at least one of the fields.");
-    // }
 }
 
 function performTitles(){
@@ -391,4 +416,4 @@ function performGenres(){
     });
 }
 
-performSearch();
+performSearch(false);

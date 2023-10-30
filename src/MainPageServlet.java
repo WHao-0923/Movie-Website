@@ -175,12 +175,40 @@ public class MainPageServlet extends HttpServlet {
                 String sortValue = request.getParameter("sortBy").trim();
                 String sortOrder = request.getParameter("sortTitle").trim();
                 if (sortValue.equals("title")){
-                    sql.append(" ORDER BY " + sortValue + " " + sortOrder +
-                            ", rating " + sortOrder);
+                    if (sortOrder.equals("ascasc")){
+                        sql.append("ORDER BY " + sortValue + " ASC" +
+                                ", rating ASC");
+                    }
+                    else if (sortOrder.equals("ascdesc")){
+                        sql.append("ORDER BY " + sortValue + " ASC" +
+                                ", rating DESC");
+                    }
+                    else if (sortOrder.equals("descasc")){
+                        sql.append("ORDER BY " + sortValue + " DESC" +
+                                ", rating ASC");
+                    }
+                    else {
+                        sql.append("ORDER BY " + sortValue + " DESC" +
+                                ", rating DESC");
+                    }
                 }
                 else{
-                    sql.append(" ORDER BY " + sortValue + " " + sortOrder +
-                            ", title " + sortOrder);
+                    if (sortOrder.equals("ascasc")){
+                        sql.append("ORDER BY " + sortValue + " ASC" +
+                                ", title ASC");
+                    }
+                    else if (sortOrder.equals("ascdesc")){
+                        sql.append("ORDER BY " + sortValue + " ASC" +
+                                ", title DESC");
+                    }
+                    else if (sortOrder.equals("descasc")){
+                        sql.append("ORDER BY " + sortValue + " DESC" +
+                                ", title ASC");
+                    }
+                    else {
+                        sql.append("ORDER BY " + sortValue + " DESC" +
+                                ", title DESC");
+                    }
                 }
                 sql.append(" LIMIT ? OFFSET ?;");
 
@@ -189,7 +217,12 @@ public class MainPageServlet extends HttpServlet {
                 int index = 1;
                 if (title != null && !title.isEmpty()) {
                     if (!title.equals("*")){
-                        stmt.setString(index++,  "%" + title + "%");
+                        if (title.length() == 1){
+                            stmt.setString(index++,  title + "%");
+                        }
+                        else{
+                            stmt.setString(index++,  "%" + title + "%");
+                        }
                     }
                 }
                 if (year != null && !year.isEmpty()) {

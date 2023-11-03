@@ -2,7 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>edu.ics.uci</groupId>
-  <artifactId>cs122b-project1-star-example</artifactId>
+  <artifactId>Fablix-hz</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>war</packaging>
   <dependencies>
@@ -24,7 +24,7 @@
     </dependency>
   </dependencies>
   <build>
-    <finalName>cs122b-project1-star-example</finalName>
+    <finalName>Fablix-hz</finalName>
     <sourceDirectory>src</sourceDirectory>
     <plugins>
       <plugin>

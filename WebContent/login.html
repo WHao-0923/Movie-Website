@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="stylesheet" href="./css/login.css">
+    <script src='https://www.google.com/recaptcha/api.js' type="text/javascript"></script>
 </head>
 <body>
 <div class="login-container">
@@ -16,6 +17,7 @@
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" required>
         <button type="submit">Log In</button>
+        <div class="g-recaptcha" data-sitekey="6LdR_f4oAAAAAD6aPpVFdcKn2Z1ODvp9JeyCpj8-"></div>
     </form>
     <p id="error" class="error"></p>
 </div>

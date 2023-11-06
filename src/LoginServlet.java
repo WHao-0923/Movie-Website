@@ -58,6 +58,20 @@ public class LoginServlet extends HttpServlet {
         JsonObject json = JsonParser.parseString(data).getAsJsonObject();
         String email = json.getAsJsonPrimitive("email").getAsString();
         String password = json.getAsJsonPrimitive("password").getAsString();
+        String gRecaptchaResponse = json.getAsJsonPrimitive("gRecaptchaResponse").getAsString();
+
+        request.getServletContext().log("gRecaptchaResponse=" + gRecaptchaResponse);
+
+        try {
+            RecaptchaVerifyUtils.verify(gRecaptchaResponse);
+            request.getServletContext().log("Recaptcha success");
+        } catch (Exception e) {
+            response.setStatus(401);
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("errorMessage", e.getMessage());
+            out.write(jsonObject.toString());
+            return;
+        }
 
         request.getServletContext().log("logging in:" + email + " " +password);
 

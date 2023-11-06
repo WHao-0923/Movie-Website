@@ -3,7 +3,10 @@ document.getElementById('loginForm').addEventListener('submit', async function (
 
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    console.log(password)
+    const gRecaptchaResponse = document.getElementById('g-recaptcha-response').value;
+
+    console.log(document.getElementById('g-recaptcha-response'));
+    console.log(gRecaptchaResponse);
 
     try {
         const response = await fetch('api/login', {
@@ -11,7 +14,7 @@ document.getElementById('loginForm').addEventListener('submit', async function (
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({email:email,password:password})
+            body: JSON.stringify({email:email,password:password,gRecaptchaResponse:gRecaptchaResponse})
         });
 
         if (response.ok) {

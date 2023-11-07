@@ -1,18 +1,14 @@
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.io.*;
+import java.util.*;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
+import javax.xml.parsers.*;
 
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
+import org.w3c.dom.Document;
+import org.xml.sax.*;
 
 import org.xml.sax.helpers.DefaultHandler;
 
-public class SAXParserUtils extends DefaultHandler {
+public class SAXParserMovies extends DefaultHandler {
 
     List<Movie> myMovies;
 
@@ -21,12 +17,14 @@ public class SAXParserUtils extends DefaultHandler {
     //to maintain context
     private Movie tempMov;
 
+    Set<Movie> duplicates = new HashSet<>();
+
     private StringBuilder charactersBuffer = new StringBuilder();
     private boolean inDirectorElement = false;
     private boolean insideYear = false;
     private boolean ignoreYearCharacters = false;
 
-    public SAXParserUtils() {
+    public SAXParserMovies() {
         myMovies = new ArrayList<Movie>();
     }
 
@@ -44,12 +42,13 @@ public class SAXParserUtils extends DefaultHandler {
 
             // Mains parser
             SAXParser sp_movie = spf_movie.newSAXParser();
-            // Cast parser
-            SAXParser sp_cast = spf_cast.newSAXParser();
 
-            //parse the file and also register this class for call backs
-            sp_movie.parse("./mains243.xml", this);
-            sp_cast.parse("./casts124.xml", this);
+            //parse the file and make sure the encoding is ISO-8859-1
+            InputStream inputStream = new FileInputStream("./xml/mains243.xml");
+            Reader reader = new InputStreamReader(inputStream, "ISO-8859-1");
+            InputSource inputSource = new InputSource(reader);
+            sp_movie.parse(inputSource, this);
+            //sp_movie.parse("./mains243.xml", this);
 
         } catch (SAXException se) {
             se.printStackTrace();
@@ -105,7 +104,13 @@ public class SAXParserUtils extends DefaultHandler {
 
         if (qName.equalsIgnoreCase("film")) {
             // Add the complete movie to the list
-            myMovies.add(tempMov);
+            if (!duplicates.contains(tempMov)) {
+                myMovies.add(tempMov);
+                duplicates.add(tempMov);
+            } else {
+                System.out.println("Duplicated movie found: " + tempMov.toString());
+            }
+
         } else if (qName.equalsIgnoreCase("t")) {
             tempMov.setTitle(tempVal);
         } else if (qName.equalsIgnoreCase("fid")) {
@@ -139,9 +144,54 @@ public class SAXParserUtils extends DefaultHandler {
 
     }
 
+    public static void validateXML() {
+        try {
+            // Create a factory builder
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            // Enable DTD validation
+            factory.setValidating(true);
+
+            // Create a document builder
+            DocumentBuilder builder = factory.newDocumentBuilder();
+
+            // Set error handler for validation errors
+            builder.setErrorHandler(new ErrorHandler() {
+                @Override
+                public void warning(SAXParseException exception) throws SAXException {
+                    System.out.println("WARNING: " + exception.getMessage());
+                }
+
+                @Override
+                public void error(SAXParseException exception) throws SAXException {
+                    System.out.println("ERROR: " + exception.getMessage());
+                    throw exception; // Throw exception to stop parsing on errors
+                }
+
+                @Override
+                public void fatalError(SAXParseException exception) throws SAXException {
+                    System.out.println("FATAL ERROR: " + exception.getMessage());
+                    throw exception; // Throw exception to stop parsing on fatal errors
+                }
+            });
+
+            // Parse the XML file
+            Document document = builder.parse("./xml/mains243.xml");
+
+            // If no exception was thrown, the XML is well-formed and valid against the DTD
+            System.out.println("mains243.xml is valid.");
+
+        } catch (SAXException e) {
+            // Handles the situation where the XML file is NOT valid
+            System.out.println("Validation error: " + e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) {
-        SAXParserUtils spe = new SAXParserUtils();
+        SAXParserMovies spe = new SAXParserMovies();
         spe.runUtils();
+        validateXML();
     }
 
 }

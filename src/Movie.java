@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Movie {
     private String id;
@@ -8,6 +9,21 @@ public class Movie {
     private int year;
 
     private String cat;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Movie movie = (Movie) o;
+        return Objects.equals(id, movie.id) && Objects.equals(title, movie.title)
+                && Objects.equals(year, movie.year) && Objects.equals(cat, movie.cat);
+        // Include other properties in comparison if necessary
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, title);
+    }
 
     public List<String> getDirectors() {
         return directors;
@@ -74,7 +90,7 @@ public class Movie {
         sb.append(".");
         sb.append("Category:" + getCat());
         sb.append(", ");
-        sb.append("Directory:" + getDirectors());
+        sb.append("Directors:" + getDirectors());
 
         return sb.toString();
     }

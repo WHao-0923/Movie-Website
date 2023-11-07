@@ -17,6 +17,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import jakarta.servlet.http.HttpSession;
+import org.jasypt.util.password.StrongPasswordEncryptor;
 
 /**
  * A servlet that takes input from a html <form> and talks to MySQL moviedbexample,
@@ -78,7 +79,7 @@ public class LoginServlet extends HttpServlet {
         try(Connection conn = dataSource.getConnection()) {
             // 3. 数据库查询
             // Construct a query with parameter represented by "?"
-            String query = "select * from customers where email=? and password=?";
+            String query = "select * from customers where email=?";
 
             // Declare our statement
             PreparedStatement statement = conn.prepareStatement(query);
@@ -86,13 +87,12 @@ public class LoginServlet extends HttpServlet {
             // Set the parameter represented by "?" in the query to the id we get from url,
             // num 1 indicates the first "?" in the query
             statement.setString(1, email);
-            statement.setString(2,password);
 
             // Perform the query
             ResultSet rs = statement.executeQuery();
 
             // 4. 检查凭证
-            if (rs.next()) {
+            if (rs.next()&&new StrongPasswordEncryptor().checkPassword(password,rs.getString("password") )) {
                 // TODO: It's better to hash and salt passwords, and compare the hashed values
                 // 5. 处理登录
                 response.setStatus(200);

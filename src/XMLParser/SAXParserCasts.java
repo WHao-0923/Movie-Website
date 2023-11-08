@@ -1,3 +1,5 @@
+package XMLParser;
+
 import java.io.*;
 import java.util.*;
 
@@ -61,12 +63,13 @@ public class SAXParserCasts extends DefaultHandler {
      */
     private void printData() {
 
-        System.out.println("No. of Casts '" + myCasts.size() + "'.");
+//        System.out.println("No. of Casts '" + myCasts.size() + "'.");
+//        System.out.println("Inserted" + myCasts.size() + " Movies.");
 
-        Iterator<Cast> it = myCasts.iterator();
-        while (it.hasNext()) {
-            System.out.println(it.next().toString());
-        }
+//        Iterator<Cast> it = myCasts.iterator();
+//        while (it.hasNext()) {
+//            System.out.println(it.next().toString());
+//        }
     }
 
     //Event Handlers
@@ -93,12 +96,12 @@ public class SAXParserCasts extends DefaultHandler {
         tempVal = charactersBuffer.toString().trim(); // Use the charactersBuffer content
 
         if (qName.equalsIgnoreCase("filmc")) {
-            if (!duplicates.contains(tempCast)){
+            if (tempCast.getStage_name().size()>0 && tempCast.getFilm_id()!=null && !duplicates.contains(tempCast)){
                 // Add the complete movie to the list
                 myCasts.add(tempCast);
                 duplicates.add(tempCast);
             } else {
-                System.out.println("Duplicate cast found: " + tempCast.toString());
+                //System.out.println("Duplicate cast found: " + tempCast.toString());
             }
 
         } else if (qName.equalsIgnoreCase("f")) {

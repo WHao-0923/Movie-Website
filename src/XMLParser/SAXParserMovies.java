@@ -1,3 +1,5 @@
+package XMLParser;
+
 import java.io.*;
 import java.util.*;
 
@@ -63,14 +65,15 @@ public class SAXParserMovies extends DefaultHandler {
      * Iterate through the list and print
      * the contents
      */
-    private void printData() {
+    private List<Movie> printData() {
 
-        System.out.println("No. of Movies '" + myMovies.size() + "'.");
+        //System.out.println("Inserted" + myMovies.size() + " Movies.");
 
-        Iterator<Movie> it = myMovies.iterator();
-        while (it.hasNext()) {
-            System.out.println(it.next().toString());
-        }
+//        Iterator<Movie> it = myMovies.iterator();
+//        while (it.hasNext()) {
+//            System.out.println(it.next().toString());
+//        }
+        return myMovies;
     }
 
     //Event Handlers
@@ -104,11 +107,11 @@ public class SAXParserMovies extends DefaultHandler {
 
         if (qName.equalsIgnoreCase("film")) {
             // Add the complete movie to the list
-            if (!duplicates.contains(tempMov)) {
+            if (tempMov.getId()!=null && !duplicates.contains(tempMov) && tempMov.getCat()!=null) {
                 myMovies.add(tempMov);
                 duplicates.add(tempMov);
             } else {
-                System.out.println("Duplicated movie found: " + tempMov.toString());
+                //System.out.println("Duplicated movie found: " + tempMov.toString());
             }
 
         } else if (qName.equalsIgnoreCase("t")) {
@@ -144,54 +147,9 @@ public class SAXParserMovies extends DefaultHandler {
 
     }
 
-    public static void validateXML() {
-        try {
-            // Create a factory builder
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            // Enable DTD validation
-            factory.setValidating(true);
-
-            // Create a document builder
-            DocumentBuilder builder = factory.newDocumentBuilder();
-
-            // Set error handler for validation errors
-            builder.setErrorHandler(new ErrorHandler() {
-                @Override
-                public void warning(SAXParseException exception) throws SAXException {
-                    System.out.println("WARNING: " + exception.getMessage());
-                }
-
-                @Override
-                public void error(SAXParseException exception) throws SAXException {
-                    System.out.println("ERROR: " + exception.getMessage());
-                    throw exception; // Throw exception to stop parsing on errors
-                }
-
-                @Override
-                public void fatalError(SAXParseException exception) throws SAXException {
-                    System.out.println("FATAL ERROR: " + exception.getMessage());
-                    throw exception; // Throw exception to stop parsing on fatal errors
-                }
-            });
-
-            // Parse the XML file
-            Document document = builder.parse("./xml/mains243.xml");
-
-            // If no exception was thrown, the XML is well-formed and valid against the DTD
-            System.out.println("mains243.xml is valid.");
-
-        } catch (SAXException e) {
-            // Handles the situation where the XML file is NOT valid
-            System.out.println("Validation error: " + e.getMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     public static void main(String[] args) {
         SAXParserMovies spe = new SAXParserMovies();
         spe.runUtils();
-        validateXML();
     }
 
 }

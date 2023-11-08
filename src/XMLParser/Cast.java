@@ -1,3 +1,5 @@
+package XMLParser;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -20,7 +22,7 @@ public class Cast {
 
     @Override
     public int hashCode() {
-        return Objects.hash(film_id);
+        return Objects.hash(film_id,stage_name);
     }
     public void setStage_name(List<String> stage_name) {
         this.stage_name = stage_name;

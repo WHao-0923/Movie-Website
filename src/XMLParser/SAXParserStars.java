@@ -1,3 +1,5 @@
+package XMLParser;
+
 import java.io.*;
 import java.util.*;
 
@@ -63,12 +65,12 @@ public class SAXParserStars extends DefaultHandler {
      */
     private void printData() {
 
-        System.out.println("No. of Stars '" + myStars.size() + "'.");
-
-        Iterator<Star> it = myStars.iterator();
-        while (it.hasNext()) {
-            System.out.println(it.next().toString());
-        }
+//        System.out.println("No. of Stars '" + myStars.size() + "'.");
+//
+//        Iterator<Star> it = myStars.iterator();
+//        while (it.hasNext()) {
+//            System.out.println(it.next().toString());
+//        }
     }
 
     //Event Handlers
@@ -102,7 +104,7 @@ public class SAXParserStars extends DefaultHandler {
                 duplicates.add(tempStar);
             }
             else {
-                System.out.println("Duplicate star found: " + tempStar.toString());
+                //System.out.println("Duplicate star found: " + tempStar.toString());
             }
         } else if (qName.equalsIgnoreCase("stagename")) {
             tempStar.setStagename(tempVal);
@@ -114,6 +116,13 @@ public class SAXParserStars extends DefaultHandler {
             try{
                 tempStar.setDob(Integer.parseInt(tempVal));
             } catch (NumberFormatException e){
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter("./XML_Report.txt", true))){
+                    writer.write("Star: ");
+                    writer.write(tempStar.getStagename() + "with dob ");
+                    writer.write(tempVal);
+                } catch (IOException ex) {
+                    e.printStackTrace();
+                }
                 tempStar.setDob(-1);
             }
 

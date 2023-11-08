@@ -1,3 +1,5 @@
+package XMLParser;
+
 import java.util.Objects;
 
 public class Star {

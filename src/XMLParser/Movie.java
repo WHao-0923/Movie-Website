@@ -1,3 +1,5 @@
+package XMLParser;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -10,19 +12,22 @@ public class Movie {
 
     private String cat;
 
+    List<String> directors = new ArrayList<>();
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Movie movie = (Movie) o;
+        if (Objects.equals(id, movie.id)) return true;
         return Objects.equals(id, movie.id) && Objects.equals(title, movie.title)
-                && Objects.equals(year, movie.year) && Objects.equals(cat, movie.cat);
+            && Objects.equals(year, movie.year) && Objects.equals(cat, movie.cat);
         // Include other properties in comparison if necessary
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, title);
+        return Objects.hash(id);
     }
 
     public List<String> getDirectors() {
@@ -33,7 +38,6 @@ public class Movie {
         this.directors = directors;
     }
 
-    List<String> directors = new ArrayList<>();
 
     public Movie(){
 

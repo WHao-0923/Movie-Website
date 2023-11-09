@@ -101,6 +101,13 @@ public class SAXParserCasts extends DefaultHandler {
                 myCasts.add(tempCast);
                 duplicates.add(tempCast);
             } else {
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter("XML_Report.txt", true))){
+                    writer.write("Inconsistent Cast: ");
+                    writer.write(tempCast.toString());
+                    writer.newLine();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
                 //System.out.println("Duplicate cast found: " + tempCast.toString());
             }
 

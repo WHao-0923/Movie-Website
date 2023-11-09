@@ -5,10 +5,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
+import java.util.*;
 
 public class DataLoader {
     private int movieCount = 0;
@@ -59,7 +56,7 @@ public class DataLoader {
             // Update genres_in_movies
             String insertGenresInMoviesSql = "INSERT INTO genres_in_movies (genreId, movieId) VALUES (?,?);";
             PreparedStatement statement_genresInMovies = conn.prepareStatement(insertGenresInMoviesSql);
-
+            Map<String,Integer> genreAdded = new HashMap<>();
             for (Movie movie : movies) {
                 statement_movies.setString(1, movie.getId());
                 statement_movies.setString(2, movie.getTitle());
@@ -73,14 +70,16 @@ public class DataLoader {
                 movieCount ++;
                 statement_movies.addBatch();
                 // Check if genre exists
-                String getExistGenresSql = "SELECT id, name FROM genres WHERE name LIKE ?;";
+                String getExistGenresSql = "SELECT id, name FROM genres WHERE name = ?;";
                 PreparedStatement statement_exist = conn.prepareStatement(getExistGenresSql);
-                statement_exist.setString(1, movie.getCat()+"%");
-
+                statement_exist.setString(1, movie.getCat());
 
                 try (ResultSet rs = statement_exist.executeQuery()){
-                    if (!rs.next()){
+                    //System.out.println(!rs.next() && !genreAdded.containsKey(movie.getCat()));
+                    Boolean result = rs.next();
+                    if (!result && !genreAdded.containsKey(movie.getCat())){
                         maxId ++;
+                        genreAdded.put(movie.getCat(),maxId);
                         statement_add.setInt(1,maxId);
                         statement_add.setString(2,movie.getCat());
                         genreCount ++;
@@ -90,7 +89,12 @@ public class DataLoader {
                         statement_genresInMovies.setString(2,movie.getId());
                         statement_genresInMovies.addBatch();
                     } else {
-                        statement_genresInMovies.setInt(1,rs.getInt("id"));
+                        if (result){
+                            statement_genresInMovies.setInt(1,rs.getInt("id"));
+                        } else {
+                            //System.out.println(movie.getCat());
+                            statement_genresInMovies.setInt(1,genreAdded.get(movie.getCat()));
+                        }
                         statement_genresInMovies.setString(2,movie.getId());
                         statement_genresInMovies.addBatch();
                     }

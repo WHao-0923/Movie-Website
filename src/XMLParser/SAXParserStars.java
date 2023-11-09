@@ -104,6 +104,14 @@ public class SAXParserStars extends DefaultHandler {
                 duplicates.add(tempStar);
             }
             else {
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter("XML_Report.txt", true))){
+                    writer.write("Inconsistent Star: ");
+                    writer.write(tempStar.toString());
+                    writer.newLine();
+                    //writer.write(tempVal);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
                 //System.out.println("Duplicate star found: " + tempStar.toString());
             }
         } else if (qName.equalsIgnoreCase("stagename")) {
@@ -116,12 +124,13 @@ public class SAXParserStars extends DefaultHandler {
             try{
                 tempStar.setDob(Integer.parseInt(tempVal));
             } catch (NumberFormatException e){
-                try (BufferedWriter writer = new BufferedWriter(new FileWriter("./XML_Report.txt", true))){
-                    writer.write("Star: ");
-                    writer.write(tempStar.getStagename() + "with dob ");
-                    writer.write(tempVal);
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter("XML_Report.txt", true))){
+                    writer.write("Inconsistent Star: ");
+                    writer.write(tempStar.toString());
+                    writer.newLine();
+                    //writer.write(tempVal);
                 } catch (IOException ex) {
-                    e.printStackTrace();
+                    ex.printStackTrace();
                 }
                 tempStar.setDob(-1);
             }

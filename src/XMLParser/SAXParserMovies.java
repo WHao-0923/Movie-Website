@@ -111,6 +111,13 @@ public class SAXParserMovies extends DefaultHandler {
                 myMovies.add(tempMov);
                 duplicates.add(tempMov);
             } else {
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter("XML_Report.txt", true))){
+                    writer.write("Inconsistent Movie: ");
+                    writer.write(tempMov.toString());
+                    writer.newLine();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
                 //System.out.println("Duplicated movie found: " + tempMov.toString());
             }
 

@@ -6,6 +6,9 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class DataLoader {
     private int movieCount = 0;
@@ -102,11 +105,11 @@ public class DataLoader {
 
             }
 
-            statement_movies.executeBatch();
+            //statement_movies.executeBatch();
             System.out.println("Inserted " + movieCount + " movies.");
-            statement_add.executeBatch();
+            //statement_add.executeBatch();
             System.out.println("Inserted " + genreCount + " genres.");
-            statement_genresInMovies.executeBatch();
+            //statement_genresInMovies.executeBatch();
 
 
         } catch (SQLException e) {
@@ -149,7 +152,6 @@ public class DataLoader {
                 statement_stars.setString(2, star.getFirst_name()+" "+star.getLast_name());
                 statement_stars.setInt(3,star.getDob());
                 starCount ++;
-                //statement_stars.addBatch();
                 statement_stars.addBatch();
                 if (castMap.get(star.getStagename())!=null){
 
@@ -164,14 +166,15 @@ public class DataLoader {
                         statement_starsInMovies.setString(2,castMap.get(star.getStagename()));
                         statement_starsInMovies.addBatch();
                     }
-                    //statement_starsInMovies.addBatch();
                 }
                 oldId++;
                 newId = "nm" + (oldId+1);
             }
             stmt.close();
-            statement_stars.executeBatch();
-            statement_starsInMovies.executeBatch();
+
+            //statement_stars.executeBatch();
+            //statement_starsInMovies.executeBatch();
+
             System.out.println("Inserted " + starCount + " stars.");
 
         } catch (SQLException e) {
@@ -180,22 +183,101 @@ public class DataLoader {
     }
 
     public static void main(String[] args) {
-        // Assume the parsers have been run and we have the lists of movies, casts, and stars
+//        long startTime = System.nanoTime();
+//        // Assume the parsers have been run and we have the lists of movies, casts, and stars
+//        SAXParserMovies myMovies = new SAXParserMovies();
+//        myMovies.runUtils();
+//        List<Movie> movies = myMovies.myMovies; // This would come from your movie parser
+//        SAXParserCasts myCasts = new SAXParserCasts();
+//        myCasts.runUtils();
+//        List<Cast> casts = myCasts.myCasts; // This would come from your cast parser
+//        SAXParserStars myStars = new SAXParserStars();
+//        myStars.runUtils();
+//        List<Star> stars = myStars.myStars; // This would come from your star parser
+        long startTime = System.nanoTime();
+        ExecutorService executorService = Executors.newFixedThreadPool(3);
+
         SAXParserMovies myMovies = new SAXParserMovies();
-        myMovies.runUtils();
-        List<Movie> movies = myMovies.myMovies; // This would come from your movie parser
         SAXParserCasts myCasts = new SAXParserCasts();
-        myCasts.runUtils();
-        List<Cast> casts = myCasts.myCasts; // This would come from your cast parser
         SAXParserStars myStars = new SAXParserStars();
-        myStars.runUtils();
-        List<Star> stars = myStars.myStars; // This would come from your star parser
+        // Runnable task for parsing movies
+        Runnable parseMoviesTask = () -> {
+            myMovies.runUtils();
+        };
+
+        // Runnable task for parsing casts
+        Runnable parseCastsTask = () -> {
+            myCasts.runUtils();
+        };
+
+        // Runnable task for parsing stars
+        Runnable parseStarsTask = () -> {
+            myStars.runUtils();
+        };
+
+        // Submit tasks to the executor service
+        executorService.submit(parseMoviesTask);
+        executorService.submit(parseCastsTask);
+        executorService.submit(parseStarsTask);
+
+        // Shutdown the executor and wait for tasks to complete
+        executorService.shutdown();
+        try {
+            if (!executorService.awaitTermination(60, TimeUnit.MINUTES)) {
+                // Optional: handle the case where parsing takes more than 60 minutes
+                executorService.shutdownNow(); // Force shutdown
+            }
+        } catch (InterruptedException e) {
+            // Current thread was interrupted while waiting
+            executorService.shutdownNow();
+            Thread.currentThread().interrupt(); // Preserve interrupt status
+        }
+        long endTime = System.nanoTime();
+
+        // Calculate elapsed time in milliseconds
+        long parserTime = (endTime - startTime) / 1_000_000;
+        System.out.println("The parsers use " + String.valueOf(parserTime) + " ms.");
+
+        // At this point, all parsers have completed
+        // Now you can access the parsed data
+        List<Movie> movies = myMovies.myMovies;
+        List<Cast> casts = myCasts.myCasts;
+        List<Star> stars = myStars.myStars;
 
         DataLoader dataLoader = new DataLoader();
 
-        dataLoader.insertMovies(movies);
+        executorService = Executors.newFixedThreadPool(2);
+
+        Runnable updateMoviesTask = () -> {
+            dataLoader.insertMovies(movies);
+        };
+
+        // Runnable task for parsing casts
+        Runnable updateStarsTask = () -> {
+            dataLoader.insertStars(stars, casts, movies);
+        };
+
+        // Submit tasks to the executor service
+        executorService.submit(updateMoviesTask);
+        executorService.submit(updateStarsTask);
+
+        // Shutdown the executor and wait for tasks to complete
+        executorService.shutdown();
+        try {
+            if (!executorService.awaitTermination(60, TimeUnit.MINUTES)) {
+                // Optional: handle the case where parsing takes more than 60 minutes
+                executorService.shutdownNow(); // Force shutdown
+            }
+        } catch (InterruptedException e) {
+            // Current thread was interrupted while waiting
+            executorService.shutdownNow();
+            Thread.currentThread().interrupt(); // Preserve interrupt status
+        }
+
         //dataLoader.insertCasts(casts);
-        dataLoader.insertStars(stars, casts, movies);
+        long totalTime = System.nanoTime();
+        long totalProgramTime = (totalTime - startTime) / 1_000_000;
+        System.out.println("The program took " + String.valueOf(totalProgramTime) + " ms.");
 
     }
 }

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Database Interface</title>
+    <link rel="stylesheet" href="./css/dashboard.css">
+</head>
+<body>
+
+<div class="right-container">
+<div id="addStarSection">
+    <h2>Add New Star</h2>
+    <form id="addStarForm">
+        <label for="starName">Star Name:</label>
+        <input type="text" id="starName" name="starName" required>
+        <label for="birthYear">Birth Year:</label>
+        <input type="number" id="birthYear" name="birthYear">
+        <button type="submit">Add Star</button>
+    </form>
+</div>
+
+<div id="addMovieSection">
+    <h2>Add New Movie</h2>
+    <form id="addMovieForm">
+        <!-- Add fields for required movie data -->
+        <label for="movieTitle">Movie Title:</label>
+        <input type="text" id="movieTitle" name="movieTitle" required>
+        <!-- Add other required fields -->
+        <label for="starNameMovie">Star Name:</label>
+        <input type="text" id="starNameMovie" name="starNameMovie" required>
+        <label for="genreName">Genre:</label>
+        <input type="text" id="genreName" name="genreName" required>
+        <button type="submit">Add Movie</button>
+    </form>
+</div>
+</div>
+
+<div class="left-container">
+    <div id="metadataSection">
+        <h2>Database Metadata</h2>
+        <div id="metadataDisplay"></div>
+    </div>
+</div>
+
+<script src="./js/dashboard.js"></script>
+</body>
+</html>

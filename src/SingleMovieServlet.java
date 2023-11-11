@@ -64,7 +64,7 @@ public class SingleMovieServlet extends HttpServlet {
 
                 // Construct a query with parameter represented by "?"
                 String query = "SELECT * from stars as s, stars_in_movies as sim, movies as m, ratings as r " +
-                        "where m.id = sim.movieId and sim.starId = s.id and r.movieId=m.id and m.id = ?";
+                        "where m.id = sim.movieId and sim.starId = s.id and m.id = ?";
 
                 String query_for_genres = "SELECT * from movies as m, genres_in_movies as gim, genres as g " +
                         "where gim.genreId=g.id and gim.movieId=m.id and m.id = ?";
@@ -89,7 +89,6 @@ public class SingleMovieServlet extends HttpServlet {
 
                 // Iterate through each row of rs
                 while (rs.next()) {
-
                     if (!mainInfo){
                         String movieId = rs.getString("movieId");
                         String movieTitle = rs.getString("title");

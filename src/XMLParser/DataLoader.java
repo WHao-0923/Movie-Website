@@ -105,11 +105,11 @@ public class DataLoader {
 
             }
 
-            //statement_movies.executeBatch();
+            statement_movies.executeBatch();
             System.out.println("Inserted " + movieCount + " movies.");
-            //statement_add.executeBatch();
+            statement_add.executeBatch();
             System.out.println("Inserted " + genreCount + " genres.");
-            //statement_genresInMovies.executeBatch();
+            statement_genresInMovies.executeBatch();
 
 
         } catch (SQLException e) {
@@ -135,12 +135,17 @@ public class DataLoader {
                 newId = "nm" + String.valueOf(oldId+1);
             }
             rs.close();
-            stmt.close();
+            //stmt.close();
 
-            Map<String, String> castMap = new HashMap<>();
+            Map<String, List<String>> castMap = new HashMap<>();
             for (Cast cast : casts) {
                 for (String name:cast.getStage_name()){
-                    castMap.put(name,cast.getFilm_id());
+                    if (castMap.containsKey(name)){
+                        castMap.get(name).add(cast.getFilm_id());
+                    } else {
+                        castMap.put(name,new ArrayList<>());
+                        castMap.get(name).add(cast.getFilm_id());
+                    }
                 }
             }
             for (Star star : stars){
@@ -153,27 +158,39 @@ public class DataLoader {
                 statement_stars.setInt(3,star.getDob());
                 starCount ++;
                 statement_stars.addBatch();
+//                if ((star.getFirst_name()+" "+star.getLast_name()).equals("Tom Hanks")){
+//                    System.out.println(castMap.get(star.getStagename()));
+//                }
                 if (castMap.get(star.getStagename())!=null){
+                    Set<String> duplicate = new HashSet<>();
+                    for (String movie_id : castMap.get(star.getStagename()))
+                    {
+                        // Check if movieId is valid in db
+                        //String movie_id = castMap.get(star.getStagename());
+                        String checkMovieIdSql = "SELECT * FROM movies WHERE id = ?;";
+                        PreparedStatement checkMovie = conn.prepareStatement(checkMovieIdSql);
+                        checkMovie.setString(1,movie_id);
+                        ResultSet rs_movie = checkMovie.executeQuery();
 
-                    // Check if movieId is valid in db
-                    String movie_id = castMap.get(star.getStagename());
-                    String checkMovieIdSql = "SELECT * from movies WHERE id = ?;";
-                    PreparedStatement checkMovie = conn.prepareStatement(checkMovieIdSql);
-                    checkMovie.setString(1,movie_id);
-                    ResultSet rs_movie = checkMovie.executeQuery();
-                    if (rs_movie.next()){
-                        statement_starsInMovies.setString(1,newId);
-                        statement_starsInMovies.setString(2,castMap.get(star.getStagename()));
-                        statement_starsInMovies.addBatch();
+                        if (rs_movie.next() && !duplicate.contains(newId+movie_id)){
+                            statement_starsInMovies.setString(1,newId);
+                            statement_starsInMovies.setString(2,movie_id);
+                            duplicate.add(newId+movie_id);
+//                            if (star.getStagename().equals("")){
+//                                System.out.println(statement_starsInMovies);
+//                            }
+                            statement_starsInMovies.addBatch();
+                        }
                     }
+
                 }
                 oldId++;
                 newId = "nm" + (oldId+1);
             }
             stmt.close();
 
-            //statement_stars.executeBatch();
-            //statement_starsInMovies.executeBatch();
+            statement_stars.executeBatch();
+            statement_starsInMovies.executeBatch();
 
             System.out.println("Inserted " + starCount + " stars.");
 
@@ -245,34 +262,35 @@ public class DataLoader {
         List<Star> stars = myStars.myStars;
 
         DataLoader dataLoader = new DataLoader();
-
-        executorService = Executors.newFixedThreadPool(2);
-
-        Runnable updateMoviesTask = () -> {
-            dataLoader.insertMovies(movies);
-        };
-
-        // Runnable task for parsing casts
-        Runnable updateStarsTask = () -> {
-            dataLoader.insertStars(stars, casts, movies);
-        };
-
-        // Submit tasks to the executor service
-        executorService.submit(updateMoviesTask);
-        executorService.submit(updateStarsTask);
-
-        // Shutdown the executor and wait for tasks to complete
-        executorService.shutdown();
-        try {
-            if (!executorService.awaitTermination(60, TimeUnit.MINUTES)) {
-                // Optional: handle the case where parsing takes more than 60 minutes
-                executorService.shutdownNow(); // Force shutdown
-            }
-        } catch (InterruptedException e) {
-            // Current thread was interrupted while waiting
-            executorService.shutdownNow();
-            Thread.currentThread().interrupt(); // Preserve interrupt status
-        }
+        dataLoader.insertMovies(movies);
+        dataLoader.insertStars(stars,casts,movies);
+//        executorService = Executors.newFixedThreadPool(2);
+//
+//        Runnable updateMoviesTask = () -> {
+//            dataLoader.insertMovies(movies);
+//        };
+//
+//        // Runnable task for parsing casts
+//        Runnable updateStarsTask = () -> {
+//            dataLoader.insertStars(stars, casts, movies);
+//        };
+//
+//        // Submit tasks to the executor service
+//        executorService.submit(updateMoviesTask);
+//        executorService.submit(updateStarsTask);
+//
+//        // Shutdown the executor and wait for tasks to complete
+//        executorService.shutdown();
+//        try {
+//            if (!executorService.awaitTermination(60, TimeUnit.MINUTES)) {
+//                // Optional: handle the case where parsing takes more than 60 minutes
+//                executorService.shutdownNow(); // Force shutdown
+//            }
+//        } catch (InterruptedException e) {
+//            // Current thread was interrupted while waiting
+//            executorService.shutdownNow();
+//            Thread.currentThread().interrupt(); // Preserve interrupt status
+//        }
 
         //dataLoader.insertCasts(casts);
         long totalTime = System.nanoTime();

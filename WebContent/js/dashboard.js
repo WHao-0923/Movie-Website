@@ -18,10 +18,13 @@ document.getElementById('addMovieForm').addEventListener('submit', function(e) {
 });
 
 function fetchMetadata() {
-    fetch('api/metadata')
-        .then(response => response.json())
-        .then(data => displayMetadata(data))
-        .catch(error => console.error('Error fetching metadata:', error));
+    try {
+        fetch('api/metadata')
+            .then(response => response.json())
+            .then(data => displayMetadata(data))
+    }catch (error) {
+        window.location.href = 'eLogin.html';
+    }
 }
 
 function displayMetadata(data) {
@@ -49,10 +52,37 @@ function displayMetadata(data) {
     }
 }
 
-function addStar(name, year) {
+async function addStar(name, year) {
     // Replace with actual logic to send data to 'api/addStar'
+    if (year){
+        const now = new Date();
+        const now_year = now.getFullYear();
+        if (year>now_year || year<1800){
+            alert("Invalid birth year");
+            return;
+        }
+    }
     console.log('Adding Star:', name, year);
     // Implement the POST request here
+    try {
+        const response = await fetch('api/addStar', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({name: name, birth: year})
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // 如果登录成功，重定向到主页面
+            alert("Adding Star Succeed!");
+        } else {
+            // 如果登录失败，显示错误消息
+            alert(data["message"]);
+        }
+    } catch (error) {
+        alert("internal error happens");
+    }
 }
 
 function addMovie(title, starName, genre) {

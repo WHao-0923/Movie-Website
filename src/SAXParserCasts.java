@@ -1,5 +1,3 @@
-package XMLParser;
-
 import java.io.*;
 import java.util.*;
 
@@ -13,20 +11,20 @@ import org.xml.sax.SAXException;
 
 import org.xml.sax.helpers.DefaultHandler;
 
-public class SAXParserStars extends DefaultHandler {
+public class SAXParserCasts extends DefaultHandler {
 
     private StringBuilder charactersBuffer = new StringBuilder();
-    List<Star> myStars;
+    List<Cast> myCasts;
 
-    Set<Star> duplicates = new HashSet<>();
+    Set<Cast> duplicates = new HashSet<>();
 
     private String tempVal;
 
     //to maintain context
-    private Star tempStar;
+    private Cast tempCast;
 
-    public SAXParserStars() {
-        myStars = new ArrayList<Star>();
+    public SAXParserCasts() {
+        myCasts = new ArrayList<Cast>();
     }
 
     public void runUtils() {
@@ -37,18 +35,16 @@ public class SAXParserStars extends DefaultHandler {
     private void parseDocument() {
 
         //get a factory
-        SAXParserFactory spf_star = SAXParserFactory.newInstance();
+        SAXParserFactory spf_cast = SAXParserFactory.newInstance();
         try {
             // Cast parser
-            SAXParser sp_star = spf_star.newSAXParser();
+            SAXParser sp_cast = spf_cast.newSAXParser();
+
             //parse the file and make sure the encoding is ISO-8859-1
-            InputStream inputStream = new FileInputStream("./xml/actors63.xml");
+            InputStream inputStream = new FileInputStream("./xml/casts124.xml");
             Reader reader = new InputStreamReader(inputStream, "ISO-8859-1");
             InputSource inputSource = new InputSource(reader);
-            sp_star.parse(inputSource, this);
-            //parse the file and also register this class for call backs
-
-
+            sp_cast.parse(inputSource, this);
 
         } catch (SAXException se) {
             se.printStackTrace();
@@ -65,9 +61,10 @@ public class SAXParserStars extends DefaultHandler {
      */
     private void printData() {
 
-//        System.out.println("No. of Stars '" + myStars.size() + "'.");
-//
-//        Iterator<Star> it = myStars.iterator();
+//        System.out.println("No. of Casts '" + myCasts.size() + "'.");
+//        System.out.println("Inserted" + myCasts.size() + " Movies.");
+
+//        Iterator<Cast> it = myCasts.iterator();
 //        while (it.hasNext()) {
 //            System.out.println(it.next().toString());
 //        }
@@ -83,8 +80,8 @@ public class SAXParserStars extends DefaultHandler {
 //            //tempMov.setCat(attributes.getValue("cat"));
 //        }
         charactersBuffer.setLength(0); // Clear the characters buffer
-        if (qName.equalsIgnoreCase("actor")) {
-            tempStar = new Star();
+        if (qName.equalsIgnoreCase("filmc")) {
+            tempCast = new Cast();
         }
     }
 
@@ -96,52 +93,33 @@ public class SAXParserStars extends DefaultHandler {
 
         tempVal = charactersBuffer.toString().trim(); // Use the charactersBuffer content
 
-        if (qName.equalsIgnoreCase("actor")) {
-            // Add the complete movie to the list
-            if (!duplicates.contains(tempStar))
-            {
-                myStars.add(tempStar);
-                duplicates.add(tempStar);
-            }
-            else {
+        if (qName.equalsIgnoreCase("filmc")) {
+            if (tempCast.getStage_name().size()>0 && tempCast.getFilm_id()!=null && !duplicates.contains(tempCast)){
+                // Add the complete movie to the list
+                myCasts.add(tempCast);
+                duplicates.add(tempCast);
+            } else {
                 try (BufferedWriter writer = new BufferedWriter(new FileWriter("XML_Report.txt", true))){
-                    writer.write("Inconsistent Star: ");
-                    writer.write(tempStar.toString());
+                    writer.write("Inconsistent Cast: ");
+                    writer.write(tempCast.toString());
                     writer.newLine();
-                    //writer.write(tempVal);
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
-                //System.out.println("Duplicate star found: " + tempStar.toString());
-            }
-        } else if (qName.equalsIgnoreCase("stagename")) {
-            tempStar.setStagename(tempVal);
-        } else if (qName.equalsIgnoreCase("familyname")) {
-            tempStar.setLast_name(tempVal);
-        } else if (qName.equalsIgnoreCase("firstname")) {
-            tempStar.setFirst_name(tempVal);
-        } else if (qName.equalsIgnoreCase("dob")) {
-            try{
-                tempStar.setDob(Integer.parseInt(tempVal));
-            } catch (NumberFormatException e){
-                try (BufferedWriter writer = new BufferedWriter(new FileWriter("XML_Report.txt", true))){
-                    writer.write("Inconsistent Star: ");
-                    writer.write(tempStar.toString());
-                    writer.newLine();
-                    //writer.write(tempVal);
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-                tempStar.setDob(-1);
+                //System.out.println("Duplicate cast found: " + tempCast.toString());
             }
 
+        } else if (qName.equalsIgnoreCase("f")) {
+            tempCast.setFilm_id(tempVal);
+        } else if (qName.equalsIgnoreCase("a")) {
+            tempCast.getStage_name().add(tempVal);
         }
         charactersBuffer.setLength(0);
 
     }
 
     public static void main(String[] args) {
-        SAXParserStars spe = new SAXParserStars();
+        SAXParserCasts spe = new SAXParserCasts();
         spe.runUtils();
     }
 

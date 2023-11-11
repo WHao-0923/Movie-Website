@@ -1,11 +1,8 @@
-package XMLParser;
-
 import java.io.*;
 import java.util.*;
 
 import javax.xml.parsers.*;
 
-import org.w3c.dom.Document;
 import org.xml.sax.*;
 
 import org.xml.sax.helpers.DefaultHandler;

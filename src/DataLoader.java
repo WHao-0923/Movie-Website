@@ -1,3 +1,8 @@
+import jakarta.servlet.ServletConfig;
+
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -5,6 +10,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class DataLoader {
+    private DataSource dataSource;
+
+    public void init(ServletConfig config) {
+        try {
+            dataSource = (DataSource) new InitialContext().lookup("java:comp/env/jdbc/moviedb");
+        } catch (NamingException e) {
+            e.printStackTrace();
+        }
+    }
     private int movieCount = 0;
     private int starCount = 0;
     private int genreCount = 0;
@@ -36,7 +50,7 @@ public class DataLoader {
     public void insertMovies(List<Movie> movies) {
         String insertMovieSql = "INSERT INTO movies (id, title, year, director) VALUES (?, ?, ?, ?);";
 
-        try (Connection conn = DatabaseUtility.getConnection()) {
+        try (Connection conn = dataSource.getConnection()) {
             PreparedStatement statement_movies = conn.prepareStatement(insertMovieSql);
 
 
@@ -115,7 +129,8 @@ public class DataLoader {
 
         String insertStarsSql = "INSERT INTO stars (id, name, birthYear) VALUES (?, ?, ?);";
         String insertStarsInMoviesSql = "INSERT INTO stars_in_movies (starId, movieId) VALUES(?,?);";
-        try (Connection conn = DatabaseUtility.getConnection()) {
+
+        try (Connection conn = dataSource.getConnection()) {
             PreparedStatement statement_stars = conn.prepareStatement(insertStarsSql);
             PreparedStatement statement_starsInMovies = conn.prepareStatement(insertStarsInMoviesSql);
             int oldId = 0;

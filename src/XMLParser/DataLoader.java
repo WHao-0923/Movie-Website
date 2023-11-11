@@ -1,9 +1,5 @@
 package XMLParser;
 
-import jakarta.servlet.ServletConfig;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.sql.DataSource;
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.ExecutorService;

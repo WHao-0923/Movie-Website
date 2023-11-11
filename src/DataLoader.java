@@ -174,22 +174,24 @@ public class DataLoader {
                     Set<String> duplicate = new HashSet<>();
                     for (String movie_id : castMap.get(star.getStagename()))
                     {
-                        // Check if movieId is valid in db
-                        //String movie_id = castMap.get(star.getStagename());
-                        String checkMovieIdSql = "SELECT * FROM movies WHERE id = ?;";
-                        PreparedStatement checkMovie = conn.prepareStatement(checkMovieIdSql);
-                        checkMovie.setString(1,movie_id);
-                        ResultSet rs_movie = checkMovie.executeQuery();
-
-                        if (rs_movie.next() && !duplicate.contains(newId+movie_id)){
-                            statement_starsInMovies.setString(1,newId);
-                            statement_starsInMovies.setString(2,movie_id);
+                        if (!duplicate.contains(newId+movie_id)){
                             duplicate.add(newId+movie_id);
+                            // Check if movieId is valid in db
+                            //String movie_id = castMap.get(star.getStagename());
+                            String checkMovieIdSql = "SELECT * FROM movies WHERE id = ?;";
+                            PreparedStatement checkMovie = conn.prepareStatement(checkMovieIdSql);
+                            checkMovie.setString(1,movie_id);
+                            ResultSet rs_movie = checkMovie.executeQuery();
+                            if (rs_movie.next()){
+                                statement_starsInMovies.setString(1,newId);
+                                statement_starsInMovies.setString(2,movie_id);
 //                            if (star.getStagename().equals("")){
 //                                System.out.println(statement_starsInMovies);
 //                            }
-                            statement_starsInMovies.addBatch();
+                                statement_starsInMovies.addBatch();
+                            }
                         }
+
                     }
 
                 }

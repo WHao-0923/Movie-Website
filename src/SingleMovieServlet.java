@@ -63,11 +63,20 @@ public class SingleMovieServlet extends HttpServlet {
                 // Get a connection from dataSource
 
                 // Construct a query with parameter represented by "?"
-                String query = "SELECT * from stars as s, stars_in_movies as sim, movies as m, ratings as r " +
+                String query = "SELECT * from stars as s, stars_in_movies as sim, movies as m " +
                         "where m.id = sim.movieId and sim.starId = s.id and m.id = ?";
 
                 String query_for_genres = "SELECT * from movies as m, genres_in_movies as gim, genres as g " +
                         "where gim.genreId=g.id and gim.movieId=m.id and m.id = ?";
+
+                String query_for_rating = "select * from ratings where movieId = ?";
+                PreparedStatement s3 = conn.prepareStatement(query_for_rating);
+                s3.setString(1,id);
+                ResultSet rs3 = s3.executeQuery();
+                String rating = "";
+                while (rs3.next()){
+                    rating = rs3.getString("rating");
+                }
 
                 // Declare our statement
                 PreparedStatement statement = conn.prepareStatement(query);
@@ -94,7 +103,6 @@ public class SingleMovieServlet extends HttpServlet {
                         String movieTitle = rs.getString("title");
                         String movieYear = rs.getString("year");
                         String movieDirector = rs.getString("director");
-                        String rating = rs.getString("rating");
                         mainObject.addProperty("movie_id", movieId);
                         mainObject.addProperty("movie_title", movieTitle);
                         mainObject.addProperty("movie_year", movieYear);

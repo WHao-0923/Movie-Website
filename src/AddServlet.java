@@ -67,14 +67,14 @@ public class AddServlet extends HttpServlet {
                 }
             }
             if (!hasAdded){
-                String query = "select * from movies as m, ratings as r where m.id=r.movieId and m.id=?";
+                String query = "select * from movies as m where m.id=?";
                 PreparedStatement statement = conn.prepareStatement(query);
                 statement.setString(1, movie_id);
                 ResultSet rs = statement.executeQuery();
 
                 // Iterate through each row of rs
                 while (rs.next()) {
-                    Merchandise newItem = new Merchandise(movie_id, rs.getString("title"), Float.valueOf(rs.getString("rating")), (short) 1);
+                    Merchandise newItem = new Merchandise(movie_id, rs.getString("title"), 5, (short) 1);
                     previousItems.add(newItem);
                     message = "new item has been added to cart";
                     hasAdded = true;

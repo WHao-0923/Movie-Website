@@ -23,8 +23,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.UUID;
 
-@WebServlet(name = "AddStarServlet", urlPatterns = "/api/addStar")
-public class AddStarServlet extends HttpServlet {
+@WebServlet(name = "AddMovieServlet", urlPatterns = "/api/addMovie")
+public class AddMovieServlet extends HttpServlet {
 
     private static final long serialVersionUID = 2L;
 
@@ -55,10 +55,11 @@ public class AddStarServlet extends HttpServlet {
 
         // Parse JSON
         JsonObject json = JsonParser.parseString(data).getAsJsonObject();
-        String name = json.getAsJsonPrimitive("name").getAsString();
-        String pre_birth = json.getAsJsonPrimitive("birth").getAsString();
-        //card_number = card_number.replaceAll("(.{4})", "$1 ").trim();
-
+        String title = json.getAsJsonPrimitive("title").getAsString();
+        String starName = json.getAsJsonPrimitive("starName").getAsString();
+        String genre = json.getAsJsonPrimitive("genre").getAsString();
+        String director = json.getAsJsonPrimitive("director").getAsString();
+        int year = json.getAsJsonPrimitive("year").getAsInt();
 
         HttpSession session = request.getSession();
         String message = "";
@@ -70,32 +71,18 @@ public class AddStarServlet extends HttpServlet {
         }
         else{
             try (Connection conn = dataSource.getConnection()) {
-                PreparedStatement st = conn.prepareStatement("select max(id) from stars;");
+                PreparedStatement st = conn.prepareStatement("call add_movie(?,?,?,?,?);");
+                st.setString(1,title);
+                st.setInt(2,year);
+                st.setString(3,director);
+                st.setString(4,starName);
+                st.setString(5,genre);
+                request.getServletContext().log(st.toString());
                 ResultSet rs = st.executeQuery();
-                String max_id = null;
-                int this_id = 0;
                 while (rs.next()) {
-                    max_id = rs.getString("max(id)");
-                    this_id = Integer.parseInt(max_id.substring(2));
+                    message = rs.getString("message");
                 }
-
-                String query = "Insert into stars (name,birthYear,id) values (?,?,?)";
-
-                PreparedStatement statement = conn.prepareStatement(query);
-
-                statement.setString(1, name);
-                if (pre_birth.isEmpty()){
-                    statement.setNull(2, Types.INTEGER);
-                }
-                else{
-                statement.setInt(2, Integer.parseInt(pre_birth));}
-                statement.setString(3, max_id.substring(0, 2) + (this_id + 1));
-
-                request.getServletContext().log(statement.toString());
-
-                // Perform the query
-                statement.execute();
-                message = "Adding successful";
+                request.getServletContext().log(message);
 
             }
             catch (Exception e) {

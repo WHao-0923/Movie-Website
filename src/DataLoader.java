@@ -52,8 +52,6 @@ public class DataLoader {
 
         try (Connection conn = DatabaseUtility.getConnection()) {
             PreparedStatement statement_movies = conn.prepareStatement(insertMovieSql);
-
-
             String getMaxGenreIdSql = "SELECT MAX(genreId) AS max_id FROM genres_in_movies;";
             PreparedStatement statement_getMax = conn.prepareStatement(getMaxGenreIdSql);
             ResultSet maxId_result = statement_getMax.executeQuery();
@@ -112,12 +110,14 @@ public class DataLoader {
                 }
 
             }
-
+            conn.setAutoCommit(false);
             statement_movies.executeBatch();
             System.out.println("Inserted " + movieCount + " movies.");
             statement_add.executeBatch();
+            conn.commit();
             System.out.println("Inserted " + genreCount + " genres.");
             statement_genresInMovies.executeBatch();
+            conn.commit();
 
 
         } catch (SQLException e) {
@@ -133,9 +133,11 @@ public class DataLoader {
         try (Connection conn = DatabaseUtility.getConnection()) {
             PreparedStatement statement_stars = conn.prepareStatement(insertStarsSql);
             PreparedStatement statement_starsInMovies = conn.prepareStatement(insertStarsInMoviesSql);
+
             int oldId = 0;
             String newId = "";
             // Execute a query to find the max id
+            long time1 = System.nanoTime();
             String sql = "SELECT id AS max_id FROM stars ORDER BY id DESC LIMIT 1";
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
@@ -145,63 +147,58 @@ public class DataLoader {
             }
             rs.close();
             //stmt.close();
-
-            Map<String, List<String>> castMap = new HashMap<>();
+            //System.out.println("Time 1: "+String.valueOf((System.nanoTime()-time1)/1000));
+            long time2 = System.nanoTime();
+            String checkMovieIdSql = "SELECT id FROM movies WHERE id = ?;";
+            PreparedStatement checkMovie = conn.prepareStatement(checkMovieIdSql);
+            Map<String, Set<String>> castMap = new HashMap<>();
             for (Cast cast : casts) {
-                for (String name:cast.getStage_name()){
-                    if (castMap.containsKey(name)){
-                        castMap.get(name).add(cast.getFilm_id());
-                    } else {
-                        castMap.put(name,new ArrayList<>());
-                        castMap.get(name).add(cast.getFilm_id());
-                    }
-                }
-            }
-            for (Star star : stars){
-                //newId = "nm" + curr_cast_id+1;
-
-                statement_stars.setString(1, newId);
-
-                //curr_cast_id ++;
-                statement_stars.setString(2, star.getFirst_name()+" "+star.getLast_name());
-                statement_stars.setInt(3,star.getDob());
-                starCount ++;
-                statement_stars.addBatch();
-//                if ((star.getFirst_name()+" "+star.getLast_name()).equals("Tom Hanks")){
-//                    System.out.println(castMap.get(star.getStagename()));
-//                }
-                if (castMap.get(star.getStagename())!=null){
-                    Set<String> duplicate = new HashSet<>();
-                    for (String movie_id : castMap.get(star.getStagename()))
-                    {
-                        if (!duplicate.contains(newId+movie_id)){
-                            duplicate.add(newId+movie_id);
-                            // Check if movieId is valid in db
-                            //String movie_id = castMap.get(star.getStagename());
-                            String checkMovieIdSql = "SELECT * FROM movies WHERE id = ?;";
-                            PreparedStatement checkMovie = conn.prepareStatement(checkMovieIdSql);
-                            checkMovie.setString(1,movie_id);
-                            ResultSet rs_movie = checkMovie.executeQuery();
-                            if (rs_movie.next()){
-                                statement_starsInMovies.setString(1,newId);
-                                statement_starsInMovies.setString(2,movie_id);
-//                            if (star.getStagename().equals("")){
-//                                System.out.println(statement_starsInMovies);
-//                            }
-                                statement_starsInMovies.addBatch();
-                            }
+                checkMovie.setString(1, cast.getFilm_id());
+                ResultSet rs_movie = checkMovie.executeQuery();
+                if (rs_movie.next()) {
+                    for (String name : cast.getStage_name()) {
+                        if (castMap.containsKey(name)) {
+                            castMap.get(name).add(cast.getFilm_id());
+                        } else {
+                            castMap.put(name, new HashSet<>());
+                            castMap.get(name).add(cast.getFilm_id());
                         }
-
                     }
-
                 }
-                oldId++;
-                newId = "nm" + (oldId+1);
             }
-            stmt.close();
+            //System.out.println("Time 2: "+String.valueOf((System.nanoTime()-time2)/1000));
 
+            for (Star star : stars) {
+                //newId = "nm" + curr_cast_id+1;
+                starCount++;
+                statement_stars.setString(1, newId);
+                statement_stars.setString(2, star.getFirst_name() + " " + star.getLast_name());
+                statement_stars.setInt(3, star.getDob());
+                statement_stars.addBatch();
+                if (castMap.containsKey(star.getStagename())) {
+                    for (String movie_id : castMap.get(star.getStagename())) {
+                        statement_starsInMovies.setString(1, newId);
+                        statement_starsInMovies.setString(2, movie_id);
+                        statement_starsInMovies.addBatch();
+                    }
+                }
+
+                oldId++;
+                newId = "nm" + (oldId + 1);
+            }
+
+
+
+            stmt.close();
+            //long time3 = System.nanoTime();
+
+            conn.setAutoCommit(false);
             statement_stars.executeBatch();
             statement_starsInMovies.executeBatch();
+            conn.commit();
+//
+            //System.out.println("Time 3: "+String.valueOf((System.nanoTime()-time3)/1000));
+
 
             System.out.println("Inserted " + starCount + " stars.");
 
@@ -273,35 +270,12 @@ public class DataLoader {
         List<Star> stars = myStars.myStars;
 
         DataLoader dataLoader = new DataLoader();
+        long time3 = System.nanoTime();
         dataLoader.insertMovies(movies);
+        //System.out.println("Time 3: "+String.valueOf((System.nanoTime()-time3)/1000));
+        long time4 = System.nanoTime();
         dataLoader.insertStars(stars,casts,movies);
-//        executorService = Executors.newFixedThreadPool(2);
-//
-//        Runnable updateMoviesTask = () -> {
-//            dataLoader.insertMovies(movies);
-//        };
-//
-//        // Runnable task for parsing casts
-//        Runnable updateStarsTask = () -> {
-//            dataLoader.insertStars(stars, casts, movies);
-//        };
-//
-//        // Submit tasks to the executor service
-//        executorService.submit(updateMoviesTask);
-//        executorService.submit(updateStarsTask);
-//
-//        // Shutdown the executor and wait for tasks to complete
-//        executorService.shutdown();
-//        try {
-//            if (!executorService.awaitTermination(60, TimeUnit.MINUTES)) {
-//                // Optional: handle the case where parsing takes more than 60 minutes
-//                executorService.shutdownNow(); // Force shutdown
-//            }
-//        } catch (InterruptedException e) {
-//            // Current thread was interrupted while waiting
-//            executorService.shutdownNow();
-//            Thread.currentThread().interrupt(); // Preserve interrupt status
-//        }
+        //System.out.println("Time 4: "+String.valueOf((System.nanoTime()-time4)/1000));
 
         //dataLoader.insertCasts(casts);
         long totalTime = System.nanoTime();

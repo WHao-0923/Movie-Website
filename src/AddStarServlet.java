@@ -63,6 +63,7 @@ public class AddStarServlet extends HttpServlet {
         HttpSession session = request.getSession();
         String message = "";
         PrintWriter out = response.getWriter();
+        JsonObject jsonObject = new JsonObject();
 
         if (session.getAttribute("employee") == null) {
             message = "should log in";
@@ -96,11 +97,11 @@ public class AddStarServlet extends HttpServlet {
                 // Perform the query
                 statement.execute();
                 message = "Adding successful";
+                jsonObject.addProperty("starId",max_id.substring(0, 2) + (this_id + 1));
 
             }
             catch (Exception e) {
                 // Write error message JSON object to output
-                JsonObject jsonObject = new JsonObject();
                 jsonObject.addProperty("errorMessage", e.getMessage());
                 out.write(jsonObject.toString());
 
@@ -111,7 +112,6 @@ public class AddStarServlet extends HttpServlet {
             }
         }
         response.setContentType("application/json");
-        JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("message",message);
         out.write(jsonObject.toString());
     }

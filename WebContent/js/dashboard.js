@@ -85,7 +85,7 @@ async function addStar(name, year) {
 
         if (response.ok) {
             // 如果登录成功，重定向到主页面
-            alert("Adding Star Succeed!");
+            alert("Adding Star Succeed! StarId:"+data["starId"]);
         } else {
             // 如果登录失败，显示错误消息
             alert(data["message"]);

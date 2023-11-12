@@ -14,7 +14,9 @@ document.getElementById('addMovieForm').addEventListener('submit', function(e) {
     const movieTitle = document.getElementById('movieTitle').value;
     const starNameMovie = document.getElementById('starNameMovie').value;
     const genreName = document.getElementById('genreName').value;
-    addMovie(movieTitle, starNameMovie, genreName);
+    const director = document.getElementById('director').value;
+    const year = document.getElementById("year").value;
+    addMovie(movieTitle, starNameMovie, genreName,director,year);
 });
 
 function fetchMetadata() {
@@ -52,15 +54,23 @@ function displayMetadata(data) {
     }
 }
 
-async function addStar(name, year) {
-    // Replace with actual logic to send data to 'api/addStar'
+function isVaildYear(year){
     if (year){
         const now = new Date();
         const now_year = now.getFullYear();
         if (year>now_year || year<1800){
-            alert("Invalid birth year");
-            return;
+            return false;
         }
+    }
+    return true;
+}
+
+
+async function addStar(name, year) {
+    // Replace with actual logic to send data to 'api/addStar'
+    if (!isVaildYear(year)){
+        alert("invalid birth year!");
+        return;
     }
     console.log('Adding Star:', name, year);
     // Implement the POST request here
@@ -85,8 +95,30 @@ async function addStar(name, year) {
     }
 }
 
-function addMovie(title, starName, genre) {
-    // Replace with actual logic to send data to 'api/addMovie'
-    console.log('Adding Movie:', title, starName, genre);
-    // Implement the POST request here
+async function addMovie(title, starName, genre, director, year) {
+    if (!isVaildYear(year)) {
+        alert("invalid year!");
+        return;
+    }
+    console.log('Adding Movie:', title, starName, genre, director, year);
+    try {
+        const response = await fetch('api/addMovie', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({title: title, starName: starName, genre: genre,director:director,year:year})
+        });
+
+        if (response.ok) {
+            // 如果登录成功，重定向到主页面
+            const data = await response.json();
+            alert(data['message']);
+        } else {
+            window.location.href = 'eLogin.html';
+        }
+    } catch (error) {
+        console.error('An unexpected error occurred:', error);
+        document.getElementById('error').innerText = 'An unexpected error occurred. Please try again later.';
+    }
 }

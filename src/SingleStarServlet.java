@@ -61,7 +61,23 @@ public class SingleStarServlet extends HttpServlet {
 
             // Get a connection from dataSource and let resource manager close the connection after usage.
             try (Connection conn = dataSource.getConnection()) {
+
+                JsonObject responseJson = new JsonObject();
                 // Get a connection from dataSource
+                String q = "select * from stars where id=?";
+                PreparedStatement s = conn.prepareStatement(q);
+                s.setString(1, id);
+                ResultSet rs1 = s.executeQuery();
+                while (rs1.next()){
+                    String starId = rs1.getString("id");
+                    String starName = rs1.getString("name");
+                    String starDob = rs1.getString("birthYear");
+                    JsonObject jsonObject = new JsonObject();
+                    jsonObject.addProperty("star_id", starId);
+                    jsonObject.addProperty("star_name", starName);
+                    jsonObject.addProperty("star_dob", starDob);
+                    responseJson.add("starInfo",jsonObject);
+                }
 
                 // Construct a query with parameter represented by "?"
                 String query = "SELECT * from stars as s, stars_in_movies as sim, movies as m " +
@@ -82,10 +98,6 @@ public class SingleStarServlet extends HttpServlet {
                 // Iterate through each row of rs
                 while (rs.next()) {
 
-                    String starId = rs.getString("starId");
-                    String starName = rs.getString("name");
-                    String starDob = rs.getString("birthYear");
-
                     String movieId = rs.getString("movieId");
                     String movieTitle = rs.getString("title");
                     String movieYear = rs.getString("year");
@@ -94,9 +106,6 @@ public class SingleStarServlet extends HttpServlet {
                     // Create a JsonObject based on the data we retrieve from rs
 
                     JsonObject jsonObject = new JsonObject();
-                    jsonObject.addProperty("star_id", starId);
-                    jsonObject.addProperty("star_name", starName);
-                    jsonObject.addProperty("star_dob", starDob);
                     jsonObject.addProperty("movie_id", movieId);
                     jsonObject.addProperty("movie_title", movieTitle);
                     jsonObject.addProperty("movie_year", movieYear);
@@ -106,9 +115,10 @@ public class SingleStarServlet extends HttpServlet {
                 }
                 rs.close();
                 statement.close();
+                responseJson.add("movies",jsonArray);
 
                 // Write JSON string to output
-                out.write(jsonArray.toString());
+                out.write(responseJson.toString());
 
                 // Set response status to 200 (OK)
                 response.setStatus(200);

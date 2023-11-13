@@ -23,7 +23,7 @@ main: BEGIN
     END IF;
 
     -- Generate new movie ID
-    SELECT CONCAT('tt',  SUBSTRING(max(id), 3)+1) INTO new_movie_id FROM movies;
+    SELECT CONCAT('newm',  SUBSTRING(IFNULL(max(id), 0), 5)+1) INTO new_movie_id FROM movies where id like "newm%";
     INSERT INTO movies (id, title, year, director) VALUES (new_movie_id, in_title, in_year, in_director);
 
     -- Check if the star exists

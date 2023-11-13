@@ -1,5 +1,5 @@
 use moviedb;
-drop procedure add_movie;
+#drop procedure add_movie;
 DELIMITER //
 
 CREATE PROCEDURE add_movie (

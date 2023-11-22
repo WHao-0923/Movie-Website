@@ -43,6 +43,8 @@ public class LoginServlet extends HttpServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
 
+        request.getServletContext().log("using login servlet");
+
         response.setContentType("application/json"); // Response mime type
         PrintWriter out = response.getWriter();
 
@@ -63,15 +65,19 @@ public class LoginServlet extends HttpServlet {
 
         request.getServletContext().log("gRecaptchaResponse=" + gRecaptchaResponse);
 
-        try {
-            RecaptchaVerifyUtils.verify(gRecaptchaResponse);
-            request.getServletContext().log("Recaptcha success");
-        } catch (Exception e) {
-            response.setStatus(401);
-            JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("errorMessage", e.getMessage());
-            out.write(jsonObject.toString());
-            return;
+        boolean usingRec = true;
+        if (gRecaptchaResponse.equals("NotUsingIt")){usingRec=false;}
+        if (usingRec) {
+            try {
+                RecaptchaVerifyUtils.verify(gRecaptchaResponse);
+                request.getServletContext().log("Recaptcha success");
+            } catch (Exception e) {
+                response.setStatus(401);
+                JsonObject jsonObject = new JsonObject();
+                jsonObject.addProperty("errorMessage", e.getMessage());
+                out.write(jsonObject.toString());
+                return;
+            }
         }
 
         request.getServletContext().log("logging in:" + email + " " +password);

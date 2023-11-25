@@ -114,13 +114,6 @@ function handleMoviesResult(resultData) {
         allResultsDiv.appendChild(resultRow);
     });
 
-// If results were added, display the table
-//     if (resultData.length > 0) {
-//         document.getElementById("resultsTable").style.display = "block";
-//     } else {
-//         document.getElementById("resultsTable").style.display = "none";
-//     }
-
 }
 
 function handleTitlesResult(resultData){
@@ -158,7 +151,7 @@ function handleTitlesResult(resultData){
 }
 
 function handleGenresResult(resultData){
-    console.log("handleGenresResult: populating genre table from resultData");
+    //console.log("handleGenresResult: populating genre table from resultData");
 
     // Clear previous results
     tableHeads.innerHTML = `
@@ -183,8 +176,9 @@ function handleGenresResult(resultData){
     });
 }
 
+let activeSuggestionIndex = -1;
 
-console.log("handleStarResult: populating movies table from resultData");
+//console.log("handleStarResult: populating movies table from resultData");
 
 let searchTitle = document.getElementById('searchTitle');
 let searchYear = document.getElementById('searchYear');
@@ -202,6 +196,160 @@ const preBtn = document.getElementById("previous");
 const nextBtn = document.getElementById("next");
 
 const sortBtn = document.getElementById("sortBtn")
+
+//let fulltext = document.getElementById("fullTextSearch");
+const fullTextBtn = document.getElementById("fullTextSubmit");
+//const suggestionListElement = document.getElementById('suggestionList'); // Your suggestion list container
+
+let saved_suggestions = null;
+let fulltext = document.getElementById('fullTextSearch');
+document.addEventListener("DOMContentLoaded", function() {
+    let fulltext = document.getElementById('fullTextSearch');
+    let suggestionListElement = document.getElementById('suggestionList');
+    fullTextBtn.addEventListener('click', function () {
+        sessionStorage.setItem('fullText', fulltext.value);
+        performSearch(false, true);
+    });
+
+
+    fulltext.addEventListener('input', debounce(function (e) {
+        //console.log(e.key)
+        console.log("Auto-complete Initiated - 300ms")
+        const query = e.target.value;
+        if (query.length >= 3) {
+            performAutoComplete(query); // This function needs to be defined to handle the search
+        }
+    }, 300));
+
+    function debounce(func, delay) {
+        let debounceTimer;
+        return function () {
+            const context = this;
+            const args = arguments;
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => func.apply(context, args), delay);
+        };
+    }
+    fulltext.addEventListener('keydown', function(e) {
+        //console.log(e.key);
+        if (["ArrowDown", "ArrowUp", "Enter"].includes(e.key)) {
+            handleKeyboardNavigation(e); // This function needs to be defined to handle keyboard events
+        }
+    });
+    document.addEventListener('click', function(e) {
+        if (e.target.id !== 'fullTextSearch') {
+            suggestionListElement.style.display = 'none';
+        }
+    });
+
+    function handleKeyboardNavigation(e) {
+        const suggestions = document.querySelectorAll('.suggestion');
+        let isNavigationKey = false;
+        //console.log("In Navigation");
+        if (suggestions.length > 0) {
+            if (e.key === "ArrowDown") {
+                //console.log("ArrowDown Detected");
+                isNavigationKey = true;
+                if (activeSuggestionIndex < suggestions.length - 1) {
+                    activeSuggestionIndex++;
+                }
+            } else if (e.key === "ArrowUp") {
+                isNavigationKey = true;
+                if (activeSuggestionIndex > 0) {
+                    activeSuggestionIndex--;
+                }
+            } else if (e.key === "Enter") {
+                if (activeSuggestionIndex >= 0 && activeSuggestionIndex < suggestions.length) {
+                    e.preventDefault(); // Prevent form submission or other default behavior
+                    selectSuggestion(saved_suggestions[activeSuggestionIndex]);
+                    return;
+                } else {
+                    sessionStorage.setItem('fullText', fulltext.value);
+                    suggestionListElement.style.display = 'none';
+                    performSearch(false, true);
+                }
+            }
+        }
+
+        if (isNavigationKey) {
+            //console.log(activeSuggestionIndex);
+            e.preventDefault(); // Prevent default arrow key behavior in the textbox
+            updateSuggestionListUI(suggestions);
+        }
+    }
+
+    function selectSuggestion(suggestion) {
+        window.location.href = "single-movie.html?movie_id=" + suggestion.id;
+    }
+    function performAutoComplete(query) {
+        // Check if the query result is cached
+        const cachedResults = sessionStorage.getItem(query);
+        if (cachedResults) {
+            console.log("Using cached suggestions")
+            const suggestions = JSON.parse(cachedResults);
+            console.log(suggestions)
+            updateSuggestionList(suggestions);
+        } else {
+            console.log("Using new suggestions")
+            $.ajax({
+                url: `api/autocomplete?query=${encodeURIComponent(query)}`, // Update with the correct API endpoint and parameters
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    // Assuming 'data' contains the list of suggestions
+                    const suggestions = data.slice(0, 10); // Limit to 10 entries
+                    sessionStorage.setItem(query, JSON.stringify(suggestions));
+                    saved_suggestions = suggestions;
+                    console.log(suggestions)
+                    updateSuggestionList(suggestions);
+                },
+                error: function(error) {
+                    console.error("Error fetching autocomplete suggestions:", error);
+                }
+            });
+        }
+    }
+
+    function updateSuggestionList(suggestions) {
+        activeSuggestionIndex = -1;
+        // Clear previous results
+        suggestionListElement.innerHTML = '';
+
+        // Display suggestions
+        suggestions.forEach(suggestion => {
+            let div = document.createElement('div');
+            div.textContent = suggestion.title;
+            //div.innerHTML = '<mark>' + div.textContent + '</mark>';
+            div.classList.add('suggestion');
+            div.addEventListener('click', function() {
+                fulltext.value = this.textContent; // Update the input field
+                suggestionListElement.style.display = 'none'; // Hide the suggestions
+                // Optionally, perform an action, like redirecting to a search page
+                selectSuggestion(suggestion);
+            });
+            suggestionListElement.appendChild(div);
+        });
+
+        suggestionListElement.style.display = 'block'; // Show suggestions
+    }
+    function updateSuggestionListUI() {
+        const suggestions = document.querySelectorAll('.suggestion');
+        suggestions.forEach((s, index) => {
+            if (index === activeSuggestionIndex) {
+                // s.classList.add('active');
+                // s.scrollIntoView({ block: 'nearest' });
+                fulltext.value = s.textContent; // Update input field
+                s.innerHTML = '<mark>' + s.textContent + '</mark>';
+            } else {
+                s.innerHTML = s.textContent;
+                //s.classList.remove('active');
+            }
+        });
+    }
+
+});
+
+
 let current_page = 1;
 if (sessionStorage.getItem('page')){
     current_page = sessionStorage.getItem("page");
@@ -216,7 +364,7 @@ document.getElementById('pageSize').addEventListener('change', function() {
     pageSize = this.value;
     current_page = 1;  // reset to the first page
     sessionStorage.setItem('pageSize', this.value);
-    performSearch(false);
+    performSearch(false,false);
 });
 document.getElementById('sort').addEventListener('change', function() {
     sortValue = this.value  // reset to the first page
@@ -231,14 +379,14 @@ preBtn.addEventListener('click', function() {
     if(current_page > 1) {
         current_page--;
         sessionStorage.setItem('page', current_page);
-        performSearch(false);
+        performSearch(false,false);
     }
 });
 
 nextBtn.addEventListener('click', function() {
     current_page++;
     sessionStorage.setItem('page', current_page);
-    performSearch(false);
+    performSearch(false,false);
 });
 
 searchBtn.addEventListener('click', function() {
@@ -246,11 +394,11 @@ searchBtn.addEventListener('click', function() {
     sessionStorage.setItem('searchYear', searchYear.value);
     sessionStorage.setItem('searchDirector', searchDirector.value);
     sessionStorage.setItem('searchStar', searchStar.value);
-    performSearch(true);
+    performSearch(true,false);
 });
 
 sortBtn.addEventListener('click', function() {
-    performSearch(false);
+    performSearch(false,false);
 });
 
 titlesBtn.addEventListener('click', function() {
@@ -265,7 +413,7 @@ function getParameterByName(name) {
     let match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
     return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
 }
-function performSearch(search) {
+function performSearch(search,fullText) {
     let title = searchTitle.value.trim();
     let year = searchYear.value.trim();
     let director = searchDirector.value.trim();
@@ -276,7 +424,7 @@ function performSearch(search) {
     let page_size = pageSize;
     let sortBy = sortValue.trim();
     let sortTitle = sortOrder.trim();
-    if (!title && !year && !director && !star) {
+    if (!title && !year && !director && !star && !fullText) {
         if (getParameterByName('genre')!=null){
             if (!window.location.href.endsWith('index.html')&&!window.location.href.endsWith('login.html')) {
                 genre = getParameterByName('genre');
@@ -289,7 +437,7 @@ function performSearch(search) {
         }
     }
 
-    if(getParameterByName("refresh")==null || getParameterByName("refresh") != 'true'){
+    if(!fullText && getParameterByName("refresh")==null || getParameterByName("refresh") != 'true'){
         console.log('########## restore');
         console.log(sessionStorage.getItem("genre"));
         if (search){
@@ -349,33 +497,61 @@ function performSearch(search) {
 
 
     //console.log(title,encodeURIComponent(title))
-    // if (title || year || director || star) {
-    $.ajax({
-        url: `api/main_page?title=${encodeURIComponent(title)}&year=${encodeURIComponent(year)}&director=${encodeURIComponent(director)}&star=${encodeURIComponent(star)}
+    if (!fullText) {
+        $.ajax({
+            url: `api/main_page?title=${encodeURIComponent(title)}&year=${encodeURIComponent(year)}&director=${encodeURIComponent(director)}&star=${encodeURIComponent(star)}
                 &genre=${encodeURIComponent(genre)}&page=${encodeURIComponent(page)}
                 &pageSize=${encodeURIComponent(page_size)}&sortBy=${encodeURIComponent(sortBy)}
-                &sortTitle=${encodeURIComponent(sortTitle)}`,
-        type: 'GET',
-        dataType: 'json',
-        success: function(data) {
-            if (data.redirect) {
-                window.location.href = data.redirect; // Redirect with JavaScript
-            } else {
-                //console.log(data)
-                if (data.length>=1) {
-                    handleMoviesResult(data);
-                }
-                else{
-                    if (current_page > 1){
-                        current_page--;
+                &sortTitle=${encodeURIComponent(sortTitle)}&fullText=`,
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                if (data.redirect) {
+                    window.location.href = data.redirect; // Redirect with JavaScript
+                } else {
+                    //console.log(data)
+                    if (data.length >= 1) {
+                        handleMoviesResult(data);
+                    } else {
+                        if (current_page > 1) {
+                            current_page--;
+                        }
                     }
                 }
+            },
+            error: function (error) {
+                console.error("Error fetching search results:", error);
             }
-        },
-        error: function(error) {
-            console.error("Error fetching search results:", error);
-        }
-    });
+        });
+    } else{
+        let fullTextInput = fulltext.value.trim();
+        console.log(fullTextInput);
+        $.ajax({
+            url: `api/main_page?title=${encodeURIComponent(title)}&year=${encodeURIComponent(year)}&director=${encodeURIComponent(director)}&star=${encodeURIComponent(star)}
+                &genre=${encodeURIComponent(genre)}&page=${encodeURIComponent(page)}
+                &pageSize=${encodeURIComponent(page_size)}&sortBy=${encodeURIComponent(sortBy)}
+                &sortTitle=${encodeURIComponent(sortTitle)}&fullText=${encodeURIComponent(fullTextInput)}`,
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                if (data.redirect) {
+                    window.location.href = data.redirect; // Redirect with JavaScript
+                } else {
+                    //console.log(data)
+                    if (data.length >= 1) {
+                        handleMoviesResult(data);
+                    } else {
+                        if (current_page > 1) {
+                            current_page--;
+                        }
+                    }
+                }
+            },
+            error: function (error) {
+                console.error("Error fetching search results:", error);
+            }
+        });
+    }
 }
 
 function performTitles(){
@@ -416,4 +592,4 @@ function performGenres(){
     });
 }
 
-performSearch(false);
+performSearch(false,false);

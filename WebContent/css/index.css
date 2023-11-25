@@ -14,3 +14,50 @@
     white-space: nowrap;
     text-overflow: ellipsis;
 }
+.autocomplete-container {
+    position: relative;
+    width: 300px; /* Adjust as needed */
+    font-family: Arial, sans-serif; /* Any font you prefer */
+}
+
+#fullTextSearch {
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+.autocomplete-results {
+    position: absolute;
+    top: 100%; /* Align the top edge of the container with the bottom of the input */
+    left: 0;
+    width: calc(100% - 2px); /* Subtract border width */
+    border: 1px solid #ccc;
+    border-top: none;
+    z-index: 9999;
+    background: white;
+    display: none; /* Hide initially */
+    max-height: 200px; /* Limit the height and make it scrollable */
+    overflow-y: auto; /* Add scrollbar if needed */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Optional: add a shadow to stand out over the rest of the content */
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+.autocomplete-results div {
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s; /* Smooth transition for hover effect */
+}
+
+.autocomplete-results div:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-results div:hover, .autocomplete-results .selected {
+    background-color: #f2f2f2;
+}
+

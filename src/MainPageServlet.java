@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpSession;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
+import javax.swing.text.Style;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Serializable;
@@ -60,29 +61,31 @@ public class MainPageServlet extends HttpServlet {
             //System.out.println("star: "+ star + ", genre: " +genre);
             String page = request.getParameter("page").trim();     // current page number
             String pageSize = request.getParameter("pageSize").trim(); // number of records per page
+            String fullText = request.getParameter("fullText").trim();
 
 
             ResultSet rs = null;
-
-
-            if (title != null || year != null || director != null || star != null || genre != null) {
+             if (title != null || year != null || director != null || star != null || genre != null) {
                 StringBuilder sql = new StringBuilder("WITH InitialMovies AS (SELECT id,title,year,director FROM movies WHERE 1=1");
+                if (fullText!=null && !fullText.isEmpty()){
+                    sql.append(" AND MATCH(title) AGAINST (? IN BOOLEAN MODE)");
+                } else {
+                    if (title != null && !title.isEmpty()) {
+                        System.out.println(title);
+                        if (title.equals("*")) {
+                            sql.append(" AND title REGEXP '^[^a-zA-Z0-9]'");
+                        } else {
+                            sql.append(" AND title LIKE ?");
+                        }
+                    }
+                    if (year != null && !year.isEmpty()) {
+                        sql.append(" AND year = ?");
+                    }
+                    if (director != null && !director.isEmpty()) {
+                        sql.append(" AND director LIKE ?");
+                    }
+                }
 
-                if (title != null && !title.isEmpty()) {
-                    System.out.println(title);
-                    if (title.equals("*")){
-                        sql.append(" AND title REGEXP '^[^a-zA-Z0-9]'");
-                    }
-                    else{
-                        sql.append(" AND title LIKE ?");
-                    }
-                }
-                if (year != null && !year.isEmpty()) {
-                    sql.append(" AND year = ?");
-                }
-                if (director != null && !director.isEmpty()) {
-                    sql.append(" AND director LIKE ?");
-                }
                 sql.append(")");
                 if ((star != null && !star.isEmpty()) || (genre != null && !genre.isEmpty())) {
                     sql.append(" Select id, title, year, director, rating, genre1_name," +
@@ -214,7 +217,11 @@ public class MainPageServlet extends HttpServlet {
 
 
                 PreparedStatement stmt = conn.prepareStatement(sql.toString());
+                System.out.println(stmt);
                 int index = 1;
+                if (fullText!=null && !fullText.isEmpty()){
+                    stmt.setString(index++,fullText + "*");
+                }
                 if (title != null && !title.isEmpty()) {
                     if (!title.equals("*")){
                         if (title.length() == 1){

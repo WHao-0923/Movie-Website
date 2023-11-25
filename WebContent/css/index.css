@@ -60,4 +60,21 @@
 .autocomplete-results div:hover, .autocomplete-results .selected {
     background-color: #f2f2f2;
 }
+/* Style for .suggestion elements */
+.suggestion {
+    /* Your existing styles for suggestion */
+    cursor: pointer;
+}
+
+/* Style for hovering over suggestion items */
+.suggestion:hover {
+    background-color: #ffff99; /* Example hover color, similar to <mark> */
+}
+
+/* Style for active suggestion */
+.suggestion mark {
+    background-color: #ffff99; /* Ensure this matches the hover style */
+    /* Other active styles as needed */
+}
+
 

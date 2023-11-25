@@ -214,9 +214,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
     fulltext.addEventListener('input', debounce(function (e) {
         //console.log(e.key)
-        console.log("Auto-complete Initiated - 300ms")
         const query = e.target.value;
         if (query.length >= 3) {
+            console.log("Auto-complete Initiated - 300ms")
             performAutoComplete(query); // This function needs to be defined to handle the search
         }
     }, 300));
@@ -269,6 +269,10 @@ document.addEventListener("DOMContentLoaded", function() {
                     performSearch(false, true);
                 }
             }
+        } else if (e.key === "Enter"){
+            sessionStorage.setItem('fullText', fulltext.value);
+            suggestionListElement.style.display = 'none';
+            performSearch(false, true);
         }
 
         if (isNavigationKey) {
@@ -336,13 +340,10 @@ document.addEventListener("DOMContentLoaded", function() {
         const suggestions = document.querySelectorAll('.suggestion');
         suggestions.forEach((s, index) => {
             if (index === activeSuggestionIndex) {
-                // s.classList.add('active');
-                // s.scrollIntoView({ block: 'nearest' });
                 fulltext.value = s.textContent; // Update input field
                 s.innerHTML = '<mark>' + s.textContent + '</mark>';
             } else {
                 s.innerHTML = s.textContent;
-                //s.classList.remove('active');
             }
         });
     }

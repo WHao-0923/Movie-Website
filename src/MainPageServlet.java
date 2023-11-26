@@ -67,8 +67,13 @@ public class MainPageServlet extends HttpServlet {
             ResultSet rs = null;
              if (title != null || year != null || director != null || star != null || genre != null) {
                 StringBuilder sql = new StringBuilder("WITH InitialMovies AS (SELECT id,title,year,director FROM movies WHERE 1=1");
+                String[] tokens = null;
                 if (fullText!=null && !fullText.isEmpty()){
-                    sql.append(" AND MATCH(title) AGAINST (? IN BOOLEAN MODE)");
+                    tokens = fullText.split("\\s+");
+                     for (int i = 0; i < tokens.length; i++) {
+                         sql.append(" AND ");
+                         sql.append("MATCH(title) AGAINST (? IN BOOLEAN MODE) ");
+                     }
                 } else {
                     if (title != null && !title.isEmpty()) {
                         System.out.println(title);
@@ -220,7 +225,10 @@ public class MainPageServlet extends HttpServlet {
                 System.out.println(stmt);
                 int index = 1;
                 if (fullText!=null && !fullText.isEmpty()){
-                    stmt.setString(index++,fullText + "*");
+                    for (int i = 0; i < tokens.length; i++) {
+                        stmt.setString(index++, tokens[i] + "*");
+                    }
+                    //stmt.setString(index++,fullText + "*");
                 }
                 if (title != null && !title.isEmpty()) {
                     if (!title.equals("*")){

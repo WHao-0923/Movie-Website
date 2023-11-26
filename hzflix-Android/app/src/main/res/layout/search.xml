@@ -1,0 +1,31 @@
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                                   xmlns:app="http://schemas.android.com/apk/res-auto"
+                                                   android:id="@+id/container"
+                                                   android:layout_width="match_parent"
+                                                   android:layout_height="match_parent"
+                                                   >
+
+    <!-- 输入框 -->
+    <EditText
+            android:id="@+id/editText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="movie title"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@+id/searchButton"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintVertical_bias="0.5"/>
+
+    <!-- 搜索按钮 -->
+    <Button
+            android:id="@+id/searchButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Search"
+            app:layout_constraintTop_toTopOf="@+id/editText"
+            app:layout_constraintBottom_toBottomOf="@+id/editText"
+            app:layout_constraintLeft_toRightOf="@+id/editText"
+            app:layout_constraintRight_toRightOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

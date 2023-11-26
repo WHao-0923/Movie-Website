@@ -76,7 +76,7 @@ public class MovieListActivity extends AppCompatActivity {
         final RequestQueue queue = NetworkManager.sharedManager(this).queue;
         final StringRequest singleMovieRequest = new StringRequest(
                 Request.Method.GET,
-                baseURL + "/api/main_page?"+params+page,
+                "https://54.183.194.96:8443/Fablix-hz" + "/api/main_page?"+params+page,
                 response -> {
                     Log.d("Movie-List", "get data success");
                     try {

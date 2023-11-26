@@ -45,7 +45,7 @@ public class SingleMovie extends AppCompatActivity {
             Log.d("Single-Movie", movie_id);
             final StringRequest singleMovieRequest = new StringRequest(
                     Request.Method.GET,
-                    baseURL + "/api/single-movie?movie_id="+movie_id,
+                    "https://54.183.194.96:8443/Fablix-hz" + "/api/single-movie?movie_id="+movie_id,
                     response -> {
                         Log.d("Single-Movie", "get data success");
                         try {

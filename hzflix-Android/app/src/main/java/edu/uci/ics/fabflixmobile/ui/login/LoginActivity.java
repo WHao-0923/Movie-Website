@@ -75,7 +75,7 @@ public class LoginActivity extends AppCompatActivity {
         // request type is POST
         final StringRequest loginRequest = new StringRequest(
                 Request.Method.POST,
-                baseURL + "/api/login",
+                "https://54.183.194.96:8443/Fablix-hz" + "/api/login",
                 response -> {
                     Log.d("login.success", response);
                     //Complete and destroy login activity once successful

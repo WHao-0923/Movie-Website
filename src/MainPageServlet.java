@@ -2,6 +2,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,21 +21,37 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
 
 @WebServlet(name = "MainPageServlet", urlPatterns = "/api/main_page")
 public class MainPageServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private DataSource dataSource;
 
-    public void init(ServletConfig config) {
+    private Logger logger;
+
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
         try {
             dataSource = (DataSource) new InitialContext().lookup("java:comp/env/jdbc/moviedb");
         } catch (NamingException e) {
             e.printStackTrace();
         }
+
+        logger = Logger.getLogger(MainPageServlet.class.getName());
+        FileHandler fileHandler = null;
+        try {
+            fileHandler = new FileHandler(getServletContext().getRealPath("/")+"query_time.log", true);
+            System.out.println(getServletContext().getRealPath("/"));
+            logger.addHandler(fileHandler);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        long startTime  = System.nanoTime();
         // Set response mime type
         response.setContentType("application/json");
 
@@ -222,7 +239,7 @@ public class MainPageServlet extends HttpServlet {
 
 
                 PreparedStatement stmt = conn.prepareStatement(sql.toString());
-                System.out.println(stmt);
+
                 int index = 1;
                 if (fullText!=null && !fullText.isEmpty()){
                     for (int i = 0; i < tokens.length; i++) {
@@ -266,9 +283,11 @@ public class MainPageServlet extends HttpServlet {
                 stmt.setInt(index++, Integer.valueOf(pageSize));
                 stmt.setInt(index++, offset);
 
-                System.out.println(stmt);
+                long queryStart = System.nanoTime();
 
                 rs = stmt.executeQuery();
+
+                long queryEnd = System.nanoTime();
 
                 // Second query to get all the corresponding values
 
@@ -310,6 +329,11 @@ public class MainPageServlet extends HttpServlet {
                 response.setStatus(200);
                 rs.close();
 
+                long endTime = System.nanoTime();
+                logger.info(String.valueOf(endTime-startTime));
+                logger.info(String.valueOf(queryEnd-queryStart));
+                System.out.println(endTime-startTime);
+                System.out.println(queryEnd-queryStart);
 
             } else {
                 // Handle empty or invalid input

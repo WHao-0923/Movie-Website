@@ -43,6 +43,6 @@
 
 | **Scaled Version Test Plan**                   | **Graph Results Screenshot** | **Average Query Time(ms)** | **Average Search Servlet Time(ms)** | **Average JDBC Time(ms)** | **Analysis** |
 |------------------------------------------------|------------------------------|----------------------------|-------------------------------------|---------------------------|--------------|
-| Case 1: HTTP/1 thread                          | ![](path to image in img/)   | ??                         | ??                                  | ??                        | ??           |
-| Case 2: HTTP/10 threads                        | ![](path to image in img/)   | ??                         | ??                                  | ??                        | ??           |
-| Case 3: HTTP/10 threads/No connection pooling  | ![](path to image in img/)   | ??                         | ??                                  | ??                        | ??           |
+| Case 1: HTTP/1 thread                          | ![](D:\CMS\122b\project\project1\2023-fall-cs122b-hz\test_cases\ms1.png)   | 79                         | 5.20                                | 4.66                      | ??           |
+| Case 2: HTTP/10 threads                        | ![](D:\CMS\122b\project\project1\2023-fall-cs122b-hz\test_cases\ms2.png)   | 72                         | 2.33                                | 2.02                      | ??           |
+| Case 3: HTTP/10 threads/No connection pooling  | ![](D:\CMS\122b\project\project1\2023-fall-cs122b-hz\test_cases\ms3.png)   | 68                         | 4.20                                | 3.20                      | ??           |

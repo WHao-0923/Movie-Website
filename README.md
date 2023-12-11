@@ -6,7 +6,9 @@
     - #### Project 5 Video Demo Link:https://www.youtube.com/watch?v=cjEKGMn0NzM
 
 
-    - #### Collaborations and Work Distribution: Pengpeng Zhang-Connection Pooling&Jmeter
+    - #### Collaborations and Work Distribution:
+    - Pengpeng Zhang - Connection Pooling&Jmeter
+    - Weiyu Hao - Primary/Secondary, Scaled Fablix and Load Balancer
 
 
 - # Connection Pooling
@@ -27,6 +29,7 @@
 
     - #### How read/write requests were routed to Master/Slave SQL?
     - Use two separated Datasources for Primary and Secondary MySQL databases, the connections are determined based on the sql queries used within each servlets.
+    - Instructions like "INSERT" and "ALTER" are routed toward the Primary, and instructions like "SELECT" are routed toward the Secondary.
 
 - # JMeter TS/TJ Time Logs
     - #### Instructions of how to use the `log_processing.*` script to process the JMeter logs.

@@ -1,11 +1,10 @@
 - # General
-    - #### Team#:
+    - #### Team#: Team-hz
 
     - #### Names: Weiyu Hao, Pengpeng Zhang
 
     - #### Project 5 Video Demo Link:https://www.youtube.com/watch?v=cjEKGMn0NzM
 
-    - #### Instruction of deployment:
 
     - #### Collaborations and Work Distribution: Pengpeng Zhang-Connection Pooling&Jmeter
 
@@ -24,9 +23,10 @@
 
 - # Master/Slave
     - #### Include the filename/path of all code/configuration files in GitHub of routing queries to Master/Slave SQL.
+    - WebContent/META-INF/context.xml and All Servlets in /src folders.
 
     - #### How read/write requests were routed to Master/Slave SQL?
-
+    - Use two separated Datasources for Primary and Secondary MySQL databases, the connections are determined based on the sql queries used within each servlets.
 
 - # JMeter TS/TJ Time Logs
     - #### Instructions of how to use the `log_processing.*` script to process the JMeter logs.

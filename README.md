@@ -3,7 +3,7 @@
 
     - #### Names: Weiyu Hao, Pengpeng Zhang
 
-    - #### Project 5 Video Demo Link:
+    - #### Project 5 Video Demo Link:https://www.youtube.com/watch?v=cjEKGMn0NzM
 
     - #### Instruction of deployment:
 
@@ -30,6 +30,7 @@
 
 - # JMeter TS/TJ Time Logs
     - #### Instructions of how to use the `log_processing.*` script to process the JMeter logs.
+    - Put the file path in the file_path varible in line 1 and run the script
 
 
 - # JMeter TS/TJ Time Measurement Report

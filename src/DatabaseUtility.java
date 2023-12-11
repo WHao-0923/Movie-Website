@@ -4,7 +4,7 @@ import java.sql.SQLException;
 
 public class DatabaseUtility {
     // JDBC URL, username and password of MySQL server
-    private static final String url = "jdbc:mysql://localhost:3306/moviedb";
+    private static final String url = "jdbc:mysql://localhost:3306/moviedbMaster";
     private static final String user = "mytestuser";
     private static final String password = "My6$Password";
 
